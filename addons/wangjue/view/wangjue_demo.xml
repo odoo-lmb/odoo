@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<odoo>
+<record id="wangjue_demo" model="ir.ui.view">
+<field name="name">Wangjue Form</field>
+<field name="model">wangjue.demo</field>
+<field name="arch" type="xml">
+<form string="Wangjue Task">
+<group>
+<field name="is_done"/>
+<field name="active" readonly="1"/>
+</group>
+</form>
+</field>
+</record>
+</odoo>

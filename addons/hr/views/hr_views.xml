@@ -141,6 +141,55 @@
                                     </group>
                                 </group>
                             </page>
+                            <page name="tax_information" string="Tax Information" groups="hr.group_hr_user">
+
+                                    <group string="Basic information">
+                                        <field name="department_id" string="部门"/>
+                                         <field name="name" string="姓名"/>
+
+                                         <field name="identification_id" groups="hr.group_hr_user" string="身份证号"/>
+                                        <field name="mobile_phone" widget="phone" string="手机号"/>
+
+
+                                    </group>
+
+                                    <group string="Children Education">
+                                         <field name="num_of_children" string="子女人数"/>
+                                         <span class="oe_inline" attrs="{'invisible':[('num_of_children','in',[0, False]),('tax_children','=','0')]}" ><field name="tax_children" /></span>
+                                    </group>
+                                    <group string="Parent status">
+                                        <field name="is_parent_alive" string="家里是否赡养60岁（含）以上父母及其他赡养人"/>
+
+                                    </group>
+                                    <group string="Parent detail status" attrs="{'invisible':[('is_parent_alive','in',[0,False])]}">
+                                             <field name="parent_name" string="法定赡养人姓名" />
+                                             <field name="parent_relation" string="关系" />
+                                             <field name="parent_birthday" string="赡养人生日" />
+                                             <field name="num_of_brothers" string="家里亲生兄弟姐妹总人数（包括自己）" />
+                                             <span class="oe_inline" attrs="{'invisible':[('num_of_brothers','in',[0, False]),('tax_parents','=','0')]}" ><field name="tax_parents" /></span>
+                                     </group>
+                                     <group string="Mortgage interest">
+                                         <field name="mortgage_interest" string="首套住房贷款每月利息"/>
+                                         <span class="oe_inline" attrs="{'invisible':[('mortgage_interest','in',[0, False]),('tax_interest','=','0')]}" ><field name="tax_interest" /></span>
+
+                                    </group>
+                                    <group string="Housing rent">
+                                         <field name="is_renting" string="是否有租房"/>
+                                         <field name="living_city" string="本人及配偶的主要工作城市"/>
+                                         <span class="oe_inline" attrs="{'invisible':[('living_city','in',[0, False]),('tax_rent','=','0')]}" ><field name="tax_rent" /></span>
+                                    </group>
+                                     <group string="Continuing Education">
+                                         <field name="is_join_continuing_education"  string="本年度是否有参加学历继续教育"/>
+                                         <field name="is_get_certificate" string="本年度是否有参加职业资格继续教育并已取得相关证书"/>
+                                         <field name="certification_authority" string="证书颁发部门"/>
+                                         <field name="certificate_name"/>
+                                    </group>
+                                    <footer>
+                                            <button string="Import" name="create_invoices" type="object" class="oe_highlight"/>
+                                            <button string="Cancel" class="btn btn-default" special="cancel"/>
+                                    </footer>
+
+                            </page>
                         </notebook>
                         </div></div>
                     </sheet>
