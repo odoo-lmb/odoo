@@ -309,7 +309,7 @@ class Employee(models.Model):
     parent_name = fields.Char('Parent Name', store=True)
     is_parent_alive = fields.Selection(
         [(0, "否"), (1, "是")], string='Is Parent Alive', track_visibility='always',
-        copy=False, required=True, store=True, default=0)
+        copy=False, store=True, default=0)
     parent_relation = fields.Selection([
         (0, '请选择'),
         (1, '父亲'),
