@@ -18,7 +18,12 @@ class EmployeeCategory(models.Model):
 
     name = fields.Char(string="Employee Tag", required=True)
     color = fields.Integer(string='Color Index')
-    employee_ids = fields.Many2many('hr.employee', 'employee_category_rel', 'category_id', 'emp_id', string='Employees')
+    employee_ids = fields.Many2many(
+        'hr.employee',
+        'employee_category_rel',
+        'category_id',
+        'emp_id',
+        string='Employees')
 
     _sql_constraints = [
         ('name_uniq', 'unique (name)', "Tag name already exists !"),
@@ -31,41 +36,82 @@ class Job(models.Model):
     _description = "Job Position"
     _inherit = ['mail.thread']
 
-    name = fields.Char(string='Job Position', required=True, index=True, translate=True)
-    expected_employees = fields.Integer(compute='_compute_employees', string='Total Forecasted Employees', store=True,
+    name = fields.Char(
+        string='Job Position',
+        required=True,
+        index=True,
+        translate=True)
+    expected_employees = fields.Integer(
+        compute='_compute_employees',
+        string='Total Forecasted Employees',
+        store=True,
         help='Expected number of employees for this job position after new recruitment.')
-    no_of_employee = fields.Integer(compute='_compute_employees', string="Current Number of Employees", store=True,
+    no_of_employee = fields.Integer(
+        compute='_compute_employees',
+        string="Current Number of Employees",
+        store=True,
         help='Number of employees currently occupying this job position.')
-    no_of_recruitment = fields.Integer(string='Expected New Employees', copy=False,
-        help='Number of new employees you expect to recruit.', default=1)
-    no_of_hired_employee = fields.Integer(string='Hired Employees', copy=False,
+    no_of_recruitment = fields.Integer(
+        string='Expected New Employees',
+        copy=False,
+        help='Number of new employees you expect to recruit.',
+        default=1)
+    no_of_hired_employee = fields.Integer(
+        string='Hired Employees',
+        copy=False,
         help='Number of hired employees for this job position during recruitment phase.')
-    employee_ids = fields.One2many('hr.employee', 'job_id', string='Employees', groups='base.group_user')
+    employee_ids = fields.One2many(
+        'hr.employee',
+        'job_id',
+        string='Employees',
+        groups='base.group_user')
     description = fields.Text(string='Job Description')
     requirements = fields.Text('Requirements')
     department_id = fields.Many2one('hr.department', string='Department')
-    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.user.company_id)
-    state = fields.Selection([
-        ('recruit', 'Recruitment in Progress'),
-        ('open', 'Not Recruiting')
-    ], string='Status', readonly=True, required=True, track_visibility='always', copy=False, default='recruit', help="Set whether the recruitment process is open or closed for this job position.")
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        default=lambda self: self.env.user.company_id)
+    state = fields.Selection(
+        [
+            ('recruit',
+             'Recruitment in Progress'),
+            ('open',
+             'Not Recruiting')],
+        string='Status',
+        readonly=True,
+        required=True,
+        track_visibility='always',
+        copy=False,
+        default='recruit',
+        help="Set whether the recruitment process is open or closed for this job position.")
 
     _sql_constraints = [
-        ('name_company_uniq', 'unique(name, company_id, department_id)', 'The name of the job position must be unique per department in company!'),
+        ('name_company_uniq',
+         'unique(name, company_id, department_id)',
+         'The name of the job position must be unique per department in company!'),
     ]
 
-    @api.depends('no_of_recruitment', 'employee_ids.job_id', 'employee_ids.active')
+    @api.depends(
+        'no_of_recruitment',
+        'employee_ids.job_id',
+        'employee_ids.active')
     def _compute_employees(self):
-        employee_data = self.env['hr.employee'].read_group([('job_id', 'in', self.ids)], ['job_id'], ['job_id'])
-        result = dict((data['job_id'][0], data['job_id_count']) for data in employee_data)
+        employee_data = self.env['hr.employee'].read_group(
+            [('job_id', 'in', self.ids)], ['job_id'], ['job_id'])
+        result = dict((data['job_id'][0], data['job_id_count'])
+                      for data in employee_data)
         for job in self:
             job.no_of_employee = result.get(job.id, 0)
-            job.expected_employees = result.get(job.id, 0) + job.no_of_recruitment
+            job.expected_employees = result.get(
+                job.id, 0) + job.no_of_recruitment
 
     @api.model
     def create(self, values):
         """ We don't want the current user to be follower of all created job """
-        return super(Job, self.with_context(mail_create_nosubscribe=True)).create(values)
+        return super(
+            Job, self.with_context(
+                mail_create_nosubscribe=True)).create(values)
 
     @api.multi
     @api.returns('self', lambda value: value.id)
@@ -80,7 +126,8 @@ class Job(models.Model):
     def set_recruit(self):
         for record in self:
             no_of_recruitment = 1 if record.no_of_recruitment == 0 else record.no_of_recruitment
-            record.write({'state': 'recruit', 'no_of_recruitment': no_of_recruitment})
+            record.write({'state': 'recruit',
+                          'no_of_recruitment': no_of_recruitment})
         return True
 
     @api.multi
@@ -102,17 +149,35 @@ class Employee(models.Model):
 
     @api.model
     def _default_image(self):
-        image_path = get_module_resource('hr', 'static/src/img', 'default_image.png')
-        return tools.image_resize_image_big(base64.b64encode(open(image_path, 'rb').read()))
+        image_path = get_module_resource(
+            'hr', 'static/src/img', 'default_image.png')
+        return tools.image_resize_image_big(
+            base64.b64encode(open(image_path, 'rb').read()))
 
     # resource and user
     # required on the resource, make sure required="True" set in the view
-    name = fields.Char(related='resource_id.name', store=True, oldname='name_related', readonly=False)
-    user_id = fields.Many2one('res.users', 'User', related='resource_id.user_id', store=True, readonly=False)
-    active = fields.Boolean('Active', related='resource_id.active', default=True, store=True, readonly=False)
+    name = fields.Char(
+        related='resource_id.name',
+        store=True,
+        oldname='name_related',
+        readonly=False)
+    user_id = fields.Many2one(
+        'res.users',
+        'User',
+        related='resource_id.user_id',
+        store=True,
+        readonly=False)
+    active = fields.Boolean(
+        'Active',
+        related='resource_id.active',
+        default=True,
+        store=True,
+        readonly=False)
     # private partner
     address_home_id = fields.Many2one(
-        'res.partner', 'Private Address', help='Enter here the private address of the employee, not the one linked to your company.',
+        'res.partner',
+        'Private Address',
+        help='Enter here the private address of the employee, not the one linked to your company.',
         groups="hr.group_hr_user")
     is_address_home_a_company = fields.Boolean(
         'The employee adress has a company linked',
@@ -132,15 +197,32 @@ class Employee(models.Model):
         ('widower', 'Widower'),
         ('divorced', 'Divorced')
     ], string='Marital Status', groups="hr.group_hr_user", default='single')
-    spouse_complete_name = fields.Char(string="Spouse Complete Name", groups="hr.group_hr_user")
-    spouse_birthdate = fields.Date(string="Spouse Birthdate", groups="hr.group_hr_user")
-    children = fields.Integer(string='Number of Children', groups="hr.group_hr_user")
+    spouse_complete_name = fields.Char(
+        string="Spouse Complete Name",
+        groups="hr.group_hr_user")
+    spouse_birthdate = fields.Date(
+        string="Spouse Birthdate",
+        groups="hr.group_hr_user")
+    children = fields.Integer(
+        string='Number of Children',
+        groups="hr.group_hr_user")
     place_of_birth = fields.Char('Place of Birth', groups="hr.group_hr_user")
-    country_of_birth = fields.Many2one('res.country', string="Country of Birth", groups="hr.group_hr_user")
+    country_of_birth = fields.Many2one(
+        'res.country',
+        string="Country of Birth",
+        groups="hr.group_hr_user")
     birthday = fields.Date('Date of Birth', groups="hr.group_hr_user")
-    ssnid = fields.Char('SSN No', help='Social Security Number', groups="hr.group_hr_user")
-    sinid = fields.Char('SIN No', help='Social Insurance Number', groups="hr.group_hr_user")
-    identification_id = fields.Char(string='Identification No', groups="hr.group_hr_user")
+    ssnid = fields.Char(
+        'SSN No',
+        help='Social Security Number',
+        groups="hr.group_hr_user")
+    sinid = fields.Char(
+        'SIN No',
+        help='Social Insurance Number',
+        groups="hr.group_hr_user")
+    identification_id = fields.Char(
+        string='Identification No',
+        groups="hr.group_hr_user")
     passport_id = fields.Char('Passport No', groups="hr.group_hr_user")
     bank_account_id = fields.Many2one(
         'res.partner.bank', 'Bank Account Number',
@@ -150,18 +232,29 @@ class Employee(models.Model):
     permit_no = fields.Char('Work Permit No', groups="hr.group_hr_user")
     visa_no = fields.Char('Visa No', groups="hr.group_hr_user")
     visa_expire = fields.Date('Visa Expire Date', groups="hr.group_hr_user")
-    additional_note = fields.Text(string='Additional Note', groups="hr.group_hr_user")
+    additional_note = fields.Text(
+        string='Additional Note',
+        groups="hr.group_hr_user")
     certificate = fields.Selection([
         ('bachelor', 'Bachelor'),
         ('master', 'Master'),
         ('other', 'Other'),
     ], 'Certificate Level', default='master', groups="hr.group_hr_user")
-    study_field = fields.Char("Field of Study", placeholder='Computer Science', groups="hr.group_hr_user")
+    study_field = fields.Char(
+        "Field of Study",
+        placeholder='Computer Science',
+        groups="hr.group_hr_user")
     study_school = fields.Char("School", groups="hr.group_hr_user")
-    emergency_contact = fields.Char("Emergency Contact", groups="hr.group_hr_user")
+    emergency_contact = fields.Char(
+        "Emergency Contact",
+        groups="hr.group_hr_user")
     emergency_phone = fields.Char("Emergency Phone", groups="hr.group_hr_user")
-    km_home_work = fields.Integer(string="Km home-work", groups="hr.group_hr_user")
-    google_drive_link = fields.Char(string="Employee Documents", groups="hr.group_hr_user")
+    km_home_work = fields.Integer(
+        string="Km home-work",
+        groups="hr.group_hr_user")
+    google_drive_link = fields.Char(
+        string="Employee Documents",
+        groups="hr.group_hr_user")
     job_title = fields.Char("Job Title")
 
     # image: all image fields are base64 encoded and PIL-supported
@@ -189,7 +282,10 @@ class Employee(models.Model):
     job_id = fields.Many2one('hr.job', 'Job Position')
     department_id = fields.Many2one('hr.department', 'Department')
     parent_id = fields.Many2one('hr.employee', 'Manager')
-    child_ids = fields.One2many('hr.employee', 'parent_id', string='Subordinates')
+    child_ids = fields.One2many(
+        'hr.employee',
+        'parent_id',
+        string='Subordinates')
     coach_id = fields.Many2one('hr.employee', 'Coach')
     category_ids = fields.Many2many(
         'hr.employee.category', 'employee_category_rel',
@@ -198,12 +294,99 @@ class Employee(models.Model):
     # misc
     notes = fields.Text('Notes')
     color = fields.Integer('Color Index', default=0)
+    # tax
+    num_of_children = fields.Selection([
+        (0, '请选择'),
+        (1, '1'),
+        (2, '2及2个以上'),
+    ], string='子女人数', required=True, track_visibility='always',
+        copy=False, default='0',
+        help="选择你的孩子数量")
+    tax_children = fields.Char(
+        'Tax Children',
+        compute='_compute_tax_children',
+        store=True)
+    parent_name = fields.Char('Parent Name', store=True)
+    is_parent_alive = fields.Selection(
+        [(0, "否"), (1, "是")], string='Is Parent Alive', track_visibility='always',
+        copy=False, required=True, store=True, default=0)
+    parent_relation = fields.Selection([
+        (0, '请选择'),
+        (1, '父亲'),
+        (2, '母亲'),
+        (3, '继父'),
+        (4, '继母'), (5, '养父'),
+        (6, '养母'),
+        (7, '祖父'),
+        (8, '祖母'),
+        (9, '外祖父'),
+        (10, '外祖母'),
+    ], string='Parent Relation',
+        store=True, default=0)
+    parent_birthday = fields.Date('Parent Birthday',
+                                  store=True)
+    num_of_brothers = fields.Selection([
+        (0, '请选择'),
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+        (5, '5'),
+        (6, '6')
+    ], string='Brother num',
+        store=True, default=0)
+    tax_parents = fields.Char(
+        'Tax Parents',
+        compute='_compute_tax_parents',
+        store=True)
+    mortgage_interest = fields.Selection([
+        (0, '请选择'),
+        (1, '<1000'),
+        (2, '>=1000')], string='Mortgage interest',
+        store=True, default='请选择')
+    tax_interest = fields.Char(
+        'Tax Interest',
+        compute='_compute_tax_interest',
+        store=True)
+    is_renting = fields.Selection([(0, '没有'),
+                                   (1, '有')], string='Housing rent',
+                                  store=True, default=0)
+    living_city = fields.Selection([(0, '请选择'),
+                                    (1, '直辖市、省会城市、计划单列市'),
+                                    (2, '市辖区户籍人口超过100万的城市'),
+                                    (3, '市辖区户籍人口不超过100万的城市')], string='Living City',
+                                   store=True, default=0)
+    tax_rent = fields.Char(
+        'Tax Rent',
+        compute='_compute_tax_rent',
+        store=True)
+    is_join_continuing_education = fields.Selection([
+        (0, '请选择'),
+        (1, '是'),
+        (2, '否')], string='今年是否参加继续教育', track_visibility='always',
+        copy=False, default=0)
+
+    is_get_certificate = fields.Selection([
+        (0, '请选择'),
+        (1, '是'),
+        (2, '否')], string='今年是否获得教育证书', track_visibility='always',
+        copy=False, default=0)
+    certification_authority = fields.Selection([
+        (0, '请选择'),
+        (1, '教育部'),
+        (2, '财务部'),
+        (3, '人力资源部')
+    ], string='证书办法机构', track_visibility='always',
+        copy=False, default=0)
+
+    certificate_name = fields.Char('Certificate Name', store=True)
 
     @api.constrains('parent_id')
     def _check_parent_id(self):
         for employee in self:
             if not employee._check_recursion():
-                raise ValidationError(_('You cannot create a recursive hierarchy.'))
+                raise ValidationError(
+                    _('You cannot create a recursive hierarchy.'))
 
     @api.onchange('job_id')
     def _onchange_job_id(self):
@@ -222,7 +405,7 @@ class Employee(models.Model):
 
     @api.onchange('department_id')
     def _onchange_department(self):
-        self.parent_id = self.department_id.manager_id
+        self.parent_id = self.department_id.mar_id
 
     @api.onchange('user_id')
     def _onchange_user(self):
@@ -233,6 +416,40 @@ class Employee(models.Model):
     def _onchange_timezone(self):
         if self.resource_calendar_id and not self.tz:
             self.tz = self.resource_calendar_id.tz
+
+    @api.depends('num_of_children')
+    def _compute_tax_children(self):
+        for employee in self:
+            employee.tax_children = 0 if not employee.num_of_children else 2000 / \
+                employee.num_of_children
+
+    @api.depends('num_of_brothers')
+    def _compute_tax_parents(self):
+        for employee in self:
+            employee.tax_parents = 0 if not employee.num_of_brothers else 2000 / \
+                employee.num_of_brothers
+
+    @api.depends('mortgage_interest')
+    def _compute_tax_interest(self):
+        for employee in self:
+            if not employee.mortgage_interest:
+                employee.tax_interest = 0
+            elif employee.mortgage_interest == 1:
+                employee.tax_interest = 0
+            else:
+                employee.tax_interest = 1000
+
+    @api.depends('living_city')
+    def _compute_tax_rent(self):
+        for employee in self:
+            if not employee.living_city:
+                employee.tax_rent = 0
+            elif employee.mortgage_interest == 1:
+                employee.tax_rent = 1200
+            elif employee.mortgage_interest == 2:
+                employee.tax_rent = 1000
+            else:
+                employee.tax_rent = 800
 
     def _sync_user(self, user):
         vals = dict(
@@ -247,7 +464,10 @@ class Employee(models.Model):
     @api.model
     def create(self, vals):
         if vals.get('user_id'):
-            vals.update(self._sync_user(self.env['res.users'].browse(vals['user_id'])))
+            vals.update(
+                self._sync_user(
+                    self.env['res.users'].browse(
+                        vals['user_id'])))
         tools.image_resize_images(vals)
         employee = super(Employee, self).create(vals)
         if employee.department_id:
@@ -261,14 +481,20 @@ class Employee(models.Model):
         if 'address_home_id' in vals:
             account_id = vals.get('bank_account_id') or self.bank_account_id.id
             if account_id:
-                self.env['res.partner.bank'].browse(account_id).partner_id = vals['address_home_id']
+                self.env['res.partner.bank'].browse(
+                    account_id).partner_id = vals['address_home_id']
         if vals.get('user_id'):
-            vals.update(self._sync_user(self.env['res.users'].browse(vals['user_id'])))
+            vals.update(
+                self._sync_user(
+                    self.env['res.users'].browse(
+                        vals['user_id'])))
         tools.image_resize_images(vals)
         res = super(Employee, self).write(vals)
         if vals.get('department_id') or vals.get('user_id'):
-            department_id = vals['department_id'] if vals.get('department_id') else self[:1].department_id.id
-            # When added to a department or changing user, subscribe to the channels auto-subscribed by department
+            department_id = vals['department_id'] if vals.get(
+                'department_id') else self[:1].department_id.id
+            # When added to a department or changing user, subscribe to the
+            # channels auto-subscribed by department
             self.env['mail.channel'].sudo().search([
                 ('subscription_department_ids', 'in', department_id)
             ])._subscribe_users()
@@ -306,14 +532,40 @@ class Department(models.Model):
     _rec_name = 'complete_name'
 
     name = fields.Char('Department Name', required=True)
-    complete_name = fields.Char('Complete Name', compute='_compute_complete_name', store=True)
+    complete_name = fields.Char(
+        'Complete Name',
+        compute='_compute_complete_name',
+        store=True)
     active = fields.Boolean('Active', default=True)
-    company_id = fields.Many2one('res.company', string='Company', index=True, default=lambda self: self.env.user.company_id)
-    parent_id = fields.Many2one('hr.department', string='Parent Department', index=True)
-    child_ids = fields.One2many('hr.department', 'parent_id', string='Child Departments')
-    manager_id = fields.Many2one('hr.employee', string='Manager', track_visibility='onchange')
-    member_ids = fields.One2many('hr.employee', 'department_id', string='Members', readonly=True)
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        index=True,
+        default=lambda self: self.env.user.company_id)
+    parent_id = fields.Many2one(
+        'hr.department',
+        string='Parent Department',
+        index=True)
+    child_ids = fields.One2many(
+        'hr.department',
+        'parent_id',
+        string='Child Departments')
+    manager_id = fields.Many2one(
+        'hr.employee',
+        string='Manager',
+        track_visibility='onchange')
+    member_ids = fields.One2many(
+        'hr.employee',
+        'department_id',
+        string='Members',
+        readonly=True)
     jobs_ids = fields.One2many('hr.job', 'department_id', string='Jobs')
+    # department_name = fields.Selection([
+    #     ('bi', '商业智能部'),
+    #     ('Technology Department', '技术部')
+    # ], 'Department Name 1', required=True, track_visibility='always',
+    #     copy=False, default='bi',
+    #     help="选择你的部门")
     note = fields.Text('Note')
     color = fields.Integer('Color Index')
 
@@ -321,24 +573,30 @@ class Department(models.Model):
     def _compute_complete_name(self):
         for department in self:
             if department.parent_id:
-                department.complete_name = '%s / %s' % (department.parent_id.complete_name, department.name)
+                department.complete_name = '%s / %s' % (
+                    department.parent_id.complete_name, department.name)
             else:
                 department.complete_name = department.name
 
     @api.constrains('parent_id')
     def _check_parent_id(self):
         if not self._check_recursion():
-            raise ValidationError(_('You cannot create recursive departments.'))
+            raise ValidationError(
+                _('You cannot create recursive departments.'))
 
     @api.model
     def create(self, vals):
         # TDE note: auto-subscription of manager done by hand, because currently
         # the tracking allows to track+subscribe fields linked to a res.user record
-        # An update of the limited behavior should come, but not currently done.
-        department = super(Department, self.with_context(mail_create_nosubscribe=True)).create(vals)
+        # An update of the limited behavior should come, but not currently
+        # done.
+        department = super(
+            Department, self.with_context(
+                mail_create_nosubscribe=True)).create(vals)
         manager = self.env['hr.employee'].browse(vals.get("manager_id"))
         if manager.user_id:
-            department.message_subscribe(partner_ids=manager.user_id.partner_id.ids)
+            department.message_subscribe(
+                partner_ids=manager.user_id.partner_id.ids)
         return department
 
     @api.multi
@@ -348,14 +606,16 @@ class Department(models.Model):
         """
         # TDE note: auto-subscription of manager done by hand, because currently
         # the tracking allows to track+subscribe fields linked to a res.user record
-        # An update of the limited behavior should come, but not currently done.
+        # An update of the limited behavior should come, but not currently
+        # done.
         if 'manager_id' in vals:
             manager_id = vals.get("manager_id")
             if manager_id:
                 manager = self.env['hr.employee'].browse(manager_id)
                 # subscribe the manager user
                 if manager.user_id:
-                    self.message_subscribe(partner_ids=manager.user_id.partner_id.ids)
+                    self.message_subscribe(
+                        partner_ids=manager.user_id.partner_id.ids)
             # set the employees's parent to the new manager
             self._update_employee_manager(manager_id)
         return super(Department, self).write(vals)
