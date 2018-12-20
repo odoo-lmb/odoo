@@ -301,14 +301,18 @@ class Employee(models.Model):
         (2, '2及2个以上'),
     ], string='子女人数', required=True, track_visibility='always',
         copy=False, default='0',
+        domain="[('user_id', '=', user.id)]",
         help="选择你的孩子数量")
     tax_children = fields.Char(
         'Tax Children',
+        domain="[('user_id', '=', user.id)]",
         compute='_compute_tax_children',
         store=True)
-    parent_name = fields.Char('Parent Name', store=True)
+    parent_name = fields.Char('Parent Name', domain="[('user_id', '=', user.id)]",
+                               store=True)
     is_parent_alive = fields.Selection(
         [(0, "否"), (1, "是")], string='Is Parent Alive', track_visibility='always',
+        domain="[('user_id', '=', user.id)]",
         copy=False, store=True, default=0)
     parent_relation = fields.Selection([
         (0, '请选择'),
@@ -322,6 +326,7 @@ class Employee(models.Model):
         (9, '外祖父'),
         (10, '外祖母'),
     ], string='Parent Relation',
+        domain="[('user_id', '=', user.id)]",
         store=True, default=0)
     parent_birthday = fields.Date('Parent Birthday',
                                   store=True)
@@ -350,6 +355,7 @@ class Employee(models.Model):
         store=True)
     is_renting = fields.Selection([(0, '没有'),
                                    (1, '有')], string='Housing rent',
+                                  domain="[('user_id', '=', user.id)]",
                                   store=True, default=0)
     living_city = fields.Selection([(0, '请选择'),
                                     (1, '直辖市、省会城市、计划单列市'),
@@ -364,12 +370,14 @@ class Employee(models.Model):
         (0, '请选择'),
         (1, '是'),
         (2, '否')], string='今年是否参加继续教育', track_visibility='always',
+        domain="[('user_id', '=', user.id)]",
         copy=False, default=0)
 
     is_get_certificate = fields.Selection([
         (0, '请选择'),
         (1, '是'),
         (2, '否')], string='今年是否获得教育证书', track_visibility='always',
+        domain="[('user_id', '=', user.id)]",
         copy=False, default=0)
     certification_authority = fields.Selection([
         (0, '请选择'),
@@ -377,6 +385,7 @@ class Employee(models.Model):
         (2, '财务部'),
         (3, '人力资源部')
     ], string='证书办法机构', track_visibility='always',
+        domain="[('user_id', '=', user.id)]",
         copy=False, default=0)
 
     certificate_name = fields.Char('Certificate Name', store=True)
@@ -399,6 +408,11 @@ class Employee(models.Model):
         res['domain'] = [('res_model', '=', 'hr.employee'), ('res_id', 'in', self.ids)]
         res['context'] = {'default_res_model': 'hr.employee', 'default_res_id': self.id}
         return res
+
+    is_show_tax_information = fields.Boolean(
+        'Is show tax information',
+        compute='_compute_is_show_tax_information',
+    )
 
     @api.constrains('parent_id')
     def _check_parent_id(self):
@@ -469,6 +483,11 @@ class Employee(models.Model):
                 employee.tax_rent = 1000
             else:
                 employee.tax_rent = 800
+
+    @api.depends('user_id')
+    def _compute_is_show_tax_information(self):
+        for employee in self:
+            return employee.user_id == self.env.uid
 
     def _sync_user(self, user):
         vals = dict(
@@ -542,6 +561,11 @@ class Employee(models.Model):
             'template': '/hr/static/xls/hr_employee.xls'
         }]
 
+    def is_user(self):
+        for employee in self:
+            return employee.user_id == self.env.uid
+
+
 
 class Department(models.Model):
     _name = "hr.department"
@@ -585,6 +609,7 @@ class Department(models.Model):
     # ], 'Department Name 1', required=True, track_visibility='always',
     #     copy=False, default='bi',
     #     help="选择你的部门")
+
     note = fields.Text('Note')
     color = fields.Integer('Color Index')
 
