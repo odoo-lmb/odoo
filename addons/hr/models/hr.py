@@ -343,7 +343,7 @@ class Employee(models.Model):
         (0, '请选择'),
         (1, '<1000'),
         (2, '>=1000')], string='Mortgage interest',
-        store=True, default='请选择')
+        store=True, default=0)
     tax_interest = fields.Char(
         'Tax Interest',
         compute='_compute_tax_interest',
