@@ -59,7 +59,7 @@
                             </h1>
                         </div>
                         <field name="category_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="e.g. Part Time" groups="hr.group_hr_user"/>
-                        <notebook>
+                        <notebook  >
                             <page name="public" string="Work Information">
                                 <group>
                                     <group string="Contact Information">
@@ -148,15 +148,11 @@
                                 </group>
                             </page>
                             <page name="tax_information" string="Tax Information" groups="hr.group_hr_user">
-
                                     <group string="Basic information">
                                         <field name="department_id" string="部门"/>
                                          <field name="name" string="姓名"/>
-
                                          <field name="identification_id" groups="hr.group_hr_user" string="身份证号"/>
                                         <field name="mobile_phone" widget="phone" string="手机号"/>
-
-
                                     </group>
 
                                     <group string="Children Education">
@@ -194,8 +190,8 @@
                                             <button string="Import" name="create_invoices" type="object" class="oe_highlight"/>
                                             <button string="Cancel" class="btn btn-default" special="cancel"/>
                                     </footer>
-
                             </page>
+
                         </notebook>
                         </div></div>
                     </sheet>
