@@ -30,6 +30,7 @@
             groups="group_hr_manager"
             sequence="100"/>
 
+
         <!-- Employee -->
         <record id="view_employee_form" model="ir.ui.view">
             <field name="name">hr.employee.form</field>
@@ -44,6 +45,7 @@
                                     options='{"terminology": "archive"}'/>
                             </button>
                         </div>
+
                         <div class="oe_button_box" name="button_box">
                             <button name="action_get_attachment_view" class="oe_stat_button" icon="fa-book"
                                     type="object">
@@ -58,6 +60,18 @@
                                 <field name="name" placeholder="Employee's Name" required="True"/>
                             </h1>
                         </div>
+                         <div class="oe_title">
+                              <h1>
+                                   <field name="review_state" invisible="1"/>
+                                  <span  style="color:red" attrs="{'invisible': [('review_state', '!=', 2)]}"><field name="text_review_state" /></span>
+                                  <span  style="color:darkblue" attrs="{'invisible': [('review_state', '!=', 0)]}"><field name="text_review_state" /></span>
+                                  <span  style="color:green" attrs="{'invisible': [('review_state', '!=', 1)]}"><field name="text_review_state" /></span>
+                            </h1>
+                              <button string="通过" name="action_pass" type="object" class="oe_highlight" groups="hr.group_hr_user"/>
+
+                             <button string="不通过" name="action_not_pass" style="margin-left:20px" type="object" class="oe_highlight" groups="hr.group_hr_user"/>
+
+                              </div>
                         <field name="category_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="e.g. Part Time" groups="hr.group_hr_user"/>
                         <notebook  >
                             <page name="public" string="Work Information">
@@ -147,11 +161,11 @@
                                     </group>
                                 </group>
                             </page>
-                            <page name="tax_information" string="Tax Information" groups="hr.group_hr_user">
+                            <page name="tax_information" string="Tax Information" groups="hr.group_hr_employer">
                                     <group string="Basic information">
                                         <field name="department_id" string="部门"/>
                                          <field name="name" string="姓名"/>
-                                         <field name="identification_id" groups="hr.group_hr_user" string="身份证号"/>
+                                         <field name="identification_id" groups="hr.group_hr_employer" string="身份证号"/>
                                         <field name="mobile_phone" widget="phone" string="手机号"/>
                                     </group>
 
@@ -168,6 +182,7 @@
                                              <field name="parent_relation" string="关系" />
                                              <field name="parent_birthday" string="赡养人生日" />
                                              <field name="num_of_brothers" string="家里亲生兄弟姐妹总人数（包括自己）" />
+                                             <span class="oe_inline" style="white-space:nowrap" attrs="{'invisible':[('num_of_brothers','in',[1,False])]}"  >分摊比例，比例不超过50%<field name="percent" />%</span>
                                              <span class="oe_inline" attrs="{'invisible':[('num_of_brothers','in',[0, False]),('tax_parents','=','0')]}" ><field name="tax_parents" /></span>
                                      </group>
                                      <group string="Mortgage interest">
@@ -185,6 +200,7 @@
                                          <field name="is_get_certificate" string="本年度是否有参加职业资格继续教育并已取得相关证书"/>
                                          <field name="certification_authority" string="证书颁发部门"/>
                                          <field name="certificate_name"/>
+                                         <span class="oe_inline" attrs="{'invisible':[('tax_certificate','in',[0, False])]}" ><field name="tax_certificate" /></span>
                                     </group>
                                     <footer>
                                             <button string="Import" name="create_invoices" type="object" class="oe_highlight"/>

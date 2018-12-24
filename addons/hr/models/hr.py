@@ -298,7 +298,7 @@ class Employee(models.Model):
     num_of_children = fields.Selection([
         (0, '请选择'),
         (1, '1'),
-        (2, '2及2个以上'),
+        (2, '2'),
     ], string='子女人数', required=True, track_visibility='always',
         copy=False, default='0',
         help="选择你的孩子数量")
@@ -307,7 +307,7 @@ class Employee(models.Model):
         compute='_compute_tax_children',
         store=True)
     parent_name = fields.Char('Parent Name',
-                               store=True)
+                              store=True)
     is_parent_alive = fields.Selection(
         [(0, "否"), (1, "是")], string='Is Parent Alive', track_visibility='always',
         copy=False, store=True, default=0)
@@ -336,6 +336,8 @@ class Employee(models.Model):
         (6, '6')
     ], string='Brother num',
         store=True, default=0)
+    percent = fields.Integer('Percent num',
+                             store=True, default=0)
     tax_parents = fields.Char(
         'Tax Parents',
         compute='_compute_tax_parents',
@@ -381,14 +383,27 @@ class Employee(models.Model):
         copy=False, default=0)
 
     certificate_name = fields.Char('Certificate Name', store=True)
-    attachment_number = fields.Integer(compute='_compute_attachment_number', string='Number of Attachments')
+    tax_certificate = fields.Char(
+        'Tax Certificate',
+        compute='_compute_tax_certificate',
+        store=True)
+    attachment_number = fields.Integer(
+        compute='_compute_attachment_number',
+        string='Number of Attachments')
+    review_state = fields.Integer("Review State",
+                                  default=0,
+                                  store=True)
+    text_review_state = fields.Char('Text Review State',
+                                    compute='_compute_review_state',
+                                    store=True)
 
     @api.multi
     def _compute_attachment_number(self):
         """附件上传"""
         attachment_data = self.env['ir.attachment'].read_group(
             [('res_model', '=', 'hr.employee'), ('res_id', 'in', self.ids)], ['res_id'], ['res_id'])
-        attachment = dict((data['res_id'], data['res_id_count']) for data in attachment_data)
+        attachment = dict((data['res_id'], data['res_id_count'])
+                          for data in attachment_data)
         for expense in self:
             expense.attachment_number = attachment.get(expense.id, 0)
 
@@ -396,9 +411,13 @@ class Employee(models.Model):
     def action_get_attachment_view(self):
         """附件上传动作视图"""
         self.ensure_one()
-        res = self.env['ir.actions.act_window'].for_xml_id('base', 'action_attachment')
-        res['domain'] = [('res_model', '=', 'hr.employee'), ('res_id', 'in', self.ids)]
-        res['context'] = {'default_res_model': 'hr.employee', 'default_res_id': self.id}
+        res = self.env['ir.actions.act_window'].for_xml_id(
+            'base', 'action_attachment')
+        res['domain'] = [('res_model', '=', 'hr.employee'),
+                         ('res_id', 'in', self.ids)]
+        res['context'] = {
+            'default_res_model': 'hr.employee',
+            'default_res_id': self.id}
         return res
 
     is_show_tax_information = fields.Boolean(
@@ -412,6 +431,15 @@ class Employee(models.Model):
             if not employee._check_recursion():
                 raise ValidationError(
                     _('You cannot create a recursive hierarchy.'))
+
+    @api.constrains('percent')
+    def _check_percent(self):
+        for employee in self:
+            if not employee.percent:
+                return
+            elif employee.percent > 50:
+                raise ValidationError(
+                    _('赡养比如不能超过50%.'))
 
     @api.onchange('job_id')
     def _onchange_job_id(self):
@@ -430,7 +458,7 @@ class Employee(models.Model):
 
     @api.onchange('department_id')
     def _onchange_department(self):
-        self.parent_id = self.department_id.mar_id
+        self.parent_id = self.department_id.manager_id
 
     @api.onchange('user_id')
     def _onchange_user(self):
@@ -445,14 +473,20 @@ class Employee(models.Model):
     @api.depends('num_of_children')
     def _compute_tax_children(self):
         for employee in self:
-            employee.tax_children = 0 if not employee.num_of_children else 2000 / \
+            employee.tax_children = 0 if not employee.num_of_children else 1000 * \
                 employee.num_of_children
 
-    @api.depends('num_of_brothers')
+    @api.depends('num_of_brothers', "percent")
     def _compute_tax_parents(self):
         for employee in self:
-            employee.tax_parents = 0 if not employee.num_of_brothers else 2000 / \
-                employee.num_of_brothers
+            if not employee.num_of_brothers:
+                employee.tax_parents = 0
+            elif employee.num_of_brothers == 1:
+                employee.tax_parents = 2000
+            elif not employee.percent:
+                employee.tax_parents = 0
+            else:
+                employee.tax_parents = 20 * employee.percent
 
     @api.depends('mortgage_interest')
     def _compute_tax_interest(self):
@@ -469,13 +503,46 @@ class Employee(models.Model):
         for employee in self:
             if not employee.living_city:
                 employee.tax_rent = 0
-            elif employee.mortgage_interest == 1:
+            elif employee.living_city == 1:
                 employee.tax_rent = 1200
-            elif employee.mortgage_interest == 2:
+            elif employee.living_city == 2:
                 employee.tax_rent = 1000
             else:
                 employee.tax_rent = 800
 
+    @api.depends('is_join_continuing_education', 'is_get_certificate')
+    def _compute_tax_certificate(self):
+        for employee in self:
+            if employee.is_join_continuing_education == 1 and employee.is_get_certificate == 1:
+                employee.tax_certificate = 700
+            elif employee.is_join_continuing_education == 1:
+                employee.tax_certificate = 400
+            elif employee.is_get_certificate == 1:
+                employee.tax_certificate = 300
+            else:
+                employee.tax_certificate = 0
+
+    @api.depends('review_state')
+    def _compute_review_state(self):
+        for employee in self:
+            if not employee.review_state:
+                employee.text_review_state = "审核中"
+            elif employee.review_state == 1:
+                employee.text_review_state = "审核通过"
+            elif employee.review_state == 2:
+                employee.text_review_state = "审核未通过"
+            else:
+                employee.text_review_state = "审核中"
+
+    @api.multi
+    def action_not_pass(self):
+        for employee in self:
+            employee.review_state = 2
+
+    @api.multi
+    def action_pass(self):
+        for employee in self:
+            employee.review_state = 1
 
     def _sync_user(self, user):
         vals = dict(
@@ -509,6 +576,10 @@ class Employee(models.Model):
             if account_id:
                 self.env['res.partner.bank'].browse(
                     account_id).partner_id = vals['address_home_id']
+        _logger.info("user_id:%s uid:%s" % (self.user_id.id, self.env.user.id))
+        if self.user_id.id == self.env.user.id:
+            vals['review_state'] = 0
+
         if vals.get('user_id'):
             vals.update(
                 self._sync_user(
@@ -548,7 +619,6 @@ class Employee(models.Model):
             'label': _('Import Template for Employees'),
             'template': '/hr/static/xls/hr_employee.xls'
         }]
-
 
 
 class Department(models.Model):
@@ -646,6 +716,7 @@ class Department(models.Model):
                         partner_ids=manager.user_id.partner_id.ids)
             # set the employees's parent to the new manager
             self._update_employee_manager(manager_id)
+
         return super(Department, self).write(vals)
 
     def _update_employee_manager(self, manager_id):
