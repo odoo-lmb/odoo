@@ -1950,3 +1950,8 @@ msgstr "例如： 部分时间"
 #: model_terms:ir.ui.view,arch_db:hr.view_hr_job_form
 msgid "e.g. Sales Manager"
 msgstr "例如：销售经理"
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_hr_job_form
+msgid "Mortgage interest"
+msgstr "房贷利息"
