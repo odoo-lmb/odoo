@@ -134,6 +134,13 @@ class HrExpense(models.Model):
         if self.product_id and self.product_uom_id.category_id != self.product_id.uom_id.category_id:
             raise UserError(_('Selected Unit of Measure does not belong to the same category as the product Unit of Measure.'))
 
+    @api.onchange('unit_amount')
+    def _onchange_product_uom_id(self):
+        if self.product_id and self.product_uom_id.category_id != self.product_id.uom_id.category_id:
+            raise UserError(_(
+                'Selected Unit of Measure does not belong to the same category as the product Unit of Measure.'))
+
+
     # ----------------------------------------
     # ORM Overrides
     # ----------------------------------------
