@@ -504,9 +504,9 @@ class Employee(models.Model):
             if not employee.living_city:
                 employee.tax_rent = 0
             elif employee.living_city == 1:
-                employee.tax_rent = 1200
+                employee.tax_rent = 1500
             elif employee.living_city == 2:
-                employee.tax_rent = 1000
+                employee.tax_rent = 1100
             else:
                 employee.tax_rent = 800
 
