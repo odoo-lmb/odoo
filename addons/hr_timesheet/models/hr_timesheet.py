@@ -6,7 +6,10 @@ import json
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+from odoo.exceptions import ValidationError, AccessError
 
+import logging
+_logger = logging.getLogger(__name__)
 
 class AccountAnalyticLine(models.Model):
     _inherit = 'account.analytic.line'
@@ -48,6 +51,49 @@ class AccountAnalyticLine(models.Model):
     def _compute_department_id(self):
         for line in self:
             line.department_id = line.employee_id.department_id
+
+    @api.constrains('unit_amount')
+    def _check_unit_amount(self):
+        temp_dict = {}
+
+        for line in self:
+            print(
+                "line.employee_id:%s line.date:%s line.unit_amount:%s" % (
+                line.employee_id.user_id, line.date, line.unit_amount))
+            if line.unit_amount > 8:
+                raise ValidationError(
+                    _('时间不能超过8.'))
+            rst = self.env['account.analytic.line'].search(
+                [('user_id', '=', line.user_id.id), ('date', '=', line.date)])
+            count_amount = 0
+            for temp in rst:
+                print(
+                    "id:%s amount:%s" % (temp.id, temp.unit_amount))
+                if temp.id == line.id:
+                    count_amount += line.unit_amount
+                else:
+                    count_amount += temp.unit_amount
+            if line.unit_amount > 8:
+                raise ValidationError(
+                    _('一日时间总计不能超过8.'))
+
+        sudo_self = self.sudo()  # this creates only one env for all operation that required sudo()
+        # (re)compute the amount (depending on unit_amount, employee_id for the cost, and account_id for currency)
+
+
+            # if temp_dict.get(line.employee_id):
+            #     if temp_dict[line.employee_id].get(line.date):
+            #         temp_dict[line.employee_id][line.date] += line.unit_amount
+            #         if temp_dict[line.employee_id][line.date] > 8:
+            #             raise ValidationError(
+            #                 _('时间不能超过8.'))
+            #     else:
+            #         temp_dict[line.employee_id][line.date] = line.unit_amount
+            # else:
+            #     temp_dict[line.employee_id] = {}
+            #     temp_dict[line.employee_id][line.date] = line.unit_amount
+
+
 
     # ----------------------------------------------------
     # ORM overrides
