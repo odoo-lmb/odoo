@@ -243,7 +243,7 @@
             <field name="arch" type="xml">
                 <search string="Employees">
                     <field name="name" string="Employees" filter_domain="['|',('work_email','ilike',self),('name','ilike',self)]"/>
-                    <field name="department_id"/>
+                    <field name="department_id" filter_domain="['|',('department_id','=',self),('department_parent_id','=',self)]"/>
                     <field name="category_ids" groups="hr.group_hr_user"/>
                     <field name="job_id" />
                     <filter string="Archived" name="inactive" domain="[('active','=',False)]"/>
@@ -540,7 +540,8 @@
             <field name="search_view_id" ref="view_employee_filter"/>
             <field name="context">{
                 "search_default_department_id": [active_id],
-                "default_department_id": active_id}
+                "default_department_id": active_id},
+                "search_parent_id": active_id,
             </field>
             <field name="help" type="html">
               <p class="o_view_nocontent_smiling_face">

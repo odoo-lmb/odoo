@@ -25,8 +25,18 @@ class AccountAnalyticLine(models.Model):
     project_id = fields.Many2one('project.project', 'Project', domain=[('allow_timesheets', '=', True)])
 
     employee_id = fields.Many2one('hr.employee', "Employee")
+    parent_id = fields.Many2one('hr.employee', "Employee", groups="hr_timesheet.group_timesheet_manager")
     department_id = fields.Many2one('hr.department', "Department", compute='_compute_department_id', store=True, compute_sudo=True)
-
+    mana_id = fields.Many2one(
+        'hr.employee',
+        '审批员',
+        )
+    is_approval= fields.Selection(
+        [(0, "审核中"), (1, "通过"),(2, "驳回")], string='审批',
+        track_visibility='always',
+        write="hr_timesheet.group_timesheet_manager",
+        read ="hr_timesheet.group_hr_timesheet_user",
+        copy=False, store=True, default=0)
     @api.onchange('project_id')
     def onchange_project_id(self):
         # force domain on task when project is set
@@ -52,6 +62,7 @@ class AccountAnalyticLine(models.Model):
         for line in self:
             line.department_id = line.employee_id.department_id
 
+
     @api.constrains('unit_amount')
     def _check_unit_amount(self):
         temp_dict = {}
@@ -73,7 +84,7 @@ class AccountAnalyticLine(models.Model):
                     count_amount += line.unit_amount
                 else:
                     count_amount += temp.unit_amount
-            if line.unit_amount > 8:
+            if count_amount > 8:
                 raise ValidationError(
                     _('一日时间总计不能超过8.'))
 
@@ -108,6 +119,9 @@ class AccountAnalyticLine(models.Model):
             else:
                 ts_user_id = self._default_user()
             values['employee_id'] = self.env['hr.employee'].search([('user_id', '=', ts_user_id)], limit=1).id
+            if not values.get('parent_id'):
+                employee = self.env['hr.employee'].browse(values['employee_id'])
+                values['parent_id'] = employee.parent_id.id
 
         values = self._timesheet_preprocess(values)
         result = super(AccountAnalyticLine, self).create(values)
