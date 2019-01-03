@@ -286,6 +286,9 @@ msgstr "管理员"
 msgid "My Timesheets"
 msgstr "我的工时表"
 
+msgid "My All Timesheets"
+msgstr "我审批的工时表"
+
 #. module: hr_timesheet
 #: model:ir.model.fields,field_description:hr_timesheet.field_report_project_task_user__hours_planned
 msgid "Planned Hours"

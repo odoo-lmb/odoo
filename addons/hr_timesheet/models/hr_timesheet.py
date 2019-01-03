@@ -25,18 +25,19 @@ class AccountAnalyticLine(models.Model):
     project_id = fields.Many2one('project.project', 'Project', domain=[('allow_timesheets', '=', True)])
 
     employee_id = fields.Many2one('hr.employee', "Employee")
-    parent_id = fields.Many2one('hr.employee', "Employee", groups="hr_timesheet.group_timesheet_manager")
+    parent_id = fields.Many2one('hr.employee', '审批员', groups="hr_timesheet.group_timesheet_manager")
     department_id = fields.Many2one('hr.department', "Department", compute='_compute_department_id', store=True, compute_sudo=True)
-    mana_id = fields.Many2one(
-        'hr.employee',
-        '审批员',
-        )
+
     is_approval= fields.Selection(
         [(0, "审核中"), (1, "通过"),(2, "驳回")], string='审批',
         track_visibility='always',
         write="hr_timesheet.group_timesheet_manager",
         read ="hr_timesheet.group_hr_timesheet_user",
         copy=False, store=True, default=0)
+
+    is_myself =fields.Boolean( compute='_compute_myself',
+        string="is USER self",)
+
     @api.onchange('project_id')
     def onchange_project_id(self):
         # force domain on task when project is set
@@ -61,6 +62,16 @@ class AccountAnalyticLine(models.Model):
     def _compute_department_id(self):
         for line in self:
             line.department_id = line.employee_id.department_id
+
+    @api.depends('employee_id')
+    def _compute_myself(self):
+         self.is_myself = (self.user_id.id == self.env.user.id)
+
+    @api.onchange('parent_id')
+    def onchange_parent_id(self):
+        # force domain on task when project is set
+        if not self.parent_id:
+            self.parent_id = self.employee_id.manager_id
 
 
     @api.constrains('unit_amount')
