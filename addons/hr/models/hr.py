@@ -562,6 +562,11 @@ class Employee(models.Model):
                 self._sync_user(
                     self.env['res.users'].browse(
                         vals['user_id'])))
+
+        if vals.get('department_id'):
+            department_parent_id = self.env['hr.department'].search(
+                [('id', '=', vals.get('department_id'))]).parent_id.id
+            vals['department_parent_id'] = department_parent_id
         tools.image_resize_images(vals)
         employee = super(Employee, self).create(vals)
         if employee.department_id:
@@ -582,7 +587,7 @@ class Employee(models.Model):
             vals['review_state'] = 0
         if vals.get('department_id'):
             department_parent_id = self.env['hr.department'].search(
-                [('parent_id', '=', vals.get('department_id'))]).id
+                [('id', '=', vals.get('department_id'))]).parent_id.id
             vals['department_parent_id'] = department_parent_id
         if vals.get('user_id'):
             vals.update(
