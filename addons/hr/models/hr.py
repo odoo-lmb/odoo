@@ -396,7 +396,6 @@ class Employee(models.Model):
     text_review_state = fields.Char('Text Review State',
                                     compute='_compute_review_state',
                                     store=True)
-    department_parent_id = fields.Many2one('hr.department', 'Department')
 
     @api.multi
     def _compute_attachment_number(self):
@@ -562,11 +561,6 @@ class Employee(models.Model):
                 self._sync_user(
                     self.env['res.users'].browse(
                         vals['user_id'])))
-
-        if vals.get('department_id'):
-            department_parent_id = self.env['hr.department'].search(
-                [('id', '=', vals.get('department_id'))]).parent_id.id
-            vals['department_parent_id'] = department_parent_id
         tools.image_resize_images(vals)
         employee = super(Employee, self).create(vals)
         if employee.department_id:
@@ -582,13 +576,6 @@ class Employee(models.Model):
             if account_id:
                 self.env['res.partner.bank'].browse(
                     account_id).partner_id = vals['address_home_id']
-        _logger.info("user_id:%s uid:%s" % (self.user_id.id, self.env.user.id))
-        if self.user_id.id == self.env.user.id:
-            vals['review_state'] = 0
-        if vals.get('department_id'):
-            department_parent_id = self.env['hr.department'].search(
-                [('id', '=', vals.get('department_id'))]).parent_id.id
-            vals['department_parent_id'] = department_parent_id
         if vals.get('user_id'):
             vals.update(
                 self._sync_user(
