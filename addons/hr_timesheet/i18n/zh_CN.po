@@ -284,8 +284,13 @@ msgstr "管理员"
 #: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_activity_mine
 #: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
 msgid "My Timesheets"
-msgstr "我的工时表"
+msgstr "我被审批过的工时表"
 
+msgid "My New Timesheets"
+msgstr "我未被审批的工时表"
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_line_my_all
+#: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_activity_all
 msgid "My All Timesheets"
 msgstr "我审批的工时表"
 

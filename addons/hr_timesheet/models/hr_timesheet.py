@@ -71,7 +71,8 @@ class AccountAnalyticLine(models.Model):
     def onchange_parent_id(self):
         # force domain on task when project is set
         if not self.parent_id:
-            self.parent_id = self.employee_id.manager_id
+            if self.employee_id:
+                self.parent_id = self.employee_id.manager_id
 
 
     @api.constrains('unit_amount')
