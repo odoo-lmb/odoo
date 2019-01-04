@@ -595,3 +595,32 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_employee_view_form_inherit_timesheet
 msgid "per hour"
 msgstr "每小时"
+
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_line_my_new
+#: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_activity_mine
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
+msgid "My Timesheet(Unapproved)"
+msgstr "我的工时表（待审批）"
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_line
+#: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_activity_mine
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
+msgid "My Timesheet(Approved)"
+msgstr "我的工时表（已审批）"
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_line_my_all_unapproved
+#: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_activity_mine
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
+msgid "Team Timesheet(Unapproved)"
+msgstr "团队工时表（待审批）"
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_line_my_all
+#: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_activity_mine
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
+msgid "Team Timesheet(Approved)"
+msgstr "团队工时表（已审批）"
