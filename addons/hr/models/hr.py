@@ -177,84 +177,71 @@ class Employee(models.Model):
     address_home_id = fields.Many2one(
         'res.partner',
         'Private Address',
-        help='Enter here the private address of the employee, not the one linked to your company.',
-        groups="hr.group_hr_user")
+        help='Enter here the private address of the employee, not the one linked to your company.')
     is_address_home_a_company = fields.Boolean(
         'The employee adress has a company linked',
         compute='_compute_is_address_home_a_company',
     )
     country_id = fields.Many2one(
-        'res.country', 'Nationality (Country)', groups="hr.group_hr_user")
+        'res.country', 'Nationality (Country)')
     gender = fields.Selection([
         ('male', 'Male'),
         ('female', 'Female'),
         ('other', 'Other')
-    ], groups="hr.group_hr_user", default="male")
+    ],  default="male")
     marital = fields.Selection([
         ('single', 'Single'),
         ('married', 'Married'),
         ('cohabitant', 'Legal Cohabitant'),
         ('widower', 'Widower'),
         ('divorced', 'Divorced')
-    ], string='Marital Status', groups="hr.group_hr_user", default='single')
+    ], string='Marital Status', default='single')
     spouse_complete_name = fields.Char(
-        string="Spouse Complete Name",
-        groups="hr.group_hr_user")
+        string="Spouse Complete Name")
     spouse_birthdate = fields.Date(
-        string="Spouse Birthdate",
-        groups="hr.group_hr_user")
+        string="Spouse Birthdate")
     children = fields.Integer(
-        string='Number of Children',
-        groups="hr.group_hr_user")
-    place_of_birth = fields.Char('Place of Birth', groups="hr.group_hr_user")
+        string='Number of Children')
+    place_of_birth = fields.Char('Place of Birth')
     country_of_birth = fields.Many2one(
         'res.country',
-        string="Country of Birth",
-        groups="hr.group_hr_user")
-    birthday = fields.Date('Date of Birth', groups="hr.group_hr_user")
+        string="Country of Birth")
+    birthday = fields.Date('Date of Birth')
     ssnid = fields.Char(
         'SSN No',
-        help='Social Security Number',
-        groups="hr.group_hr_user")
+        help='Social Security Number')
     sinid = fields.Char(
         'SIN No',
-        help='Social Insurance Number',
-        groups="hr.group_hr_user")
+        help='Social Insurance Number')
     identification_id = fields.Char(
-        string='Identification No',
-        groups="hr.group_hr_user")
-    passport_id = fields.Char('Passport No', groups="hr.group_hr_user")
+        string='Identification No')
+    passport_id = fields.Char('Passport No')
     bank_account_id = fields.Many2one(
         'res.partner.bank', 'Bank Account Number',
         domain="[('partner_id', '=', address_home_id)]",
-        groups="hr.group_hr_user",
         help='Employee bank salary account')
-    permit_no = fields.Char('Work Permit No', groups="hr.group_hr_user")
-    visa_no = fields.Char('Visa No', groups="hr.group_hr_user")
-    visa_expire = fields.Date('Visa Expire Date', groups="hr.group_hr_user")
+    permit_no = fields.Char('Work Permit No')
+    visa_no = fields.Char('Visa No')
+    visa_expire = fields.Date('Visa Expire Date')
     additional_note = fields.Text(
-        string='Additional Note',
-        groups="hr.group_hr_user")
+        string='Additional Note')
     certificate = fields.Selection([
         ('bachelor', 'Bachelor'),
         ('master', 'Master'),
         ('other', 'Other'),
-    ], 'Certificate Level', default='master', groups="hr.group_hr_user")
+    ], 'Certificate Level', default='master')
     study_field = fields.Char(
         "Field of Study",
-        placeholder='Computer Science',
-        groups="hr.group_hr_user")
-    study_school = fields.Char("School", groups="hr.group_hr_user")
+        placeholder='Computer Science')
+    study_school = fields.Char("School")
     emergency_contact = fields.Char(
-        "Emergency Contact",
-        groups="hr.group_hr_user")
-    emergency_phone = fields.Char("Emergency Phone", groups="hr.group_hr_user")
+        "Emergency Contact")
+    emergency_phone = fields.Char("Emergency Phone")
     km_home_work = fields.Integer(
         string="Km home-work",
         groups="hr.group_hr_user")
     google_drive_link = fields.Char(
-        string="Employee Documents",
-        groups="hr.group_hr_user")
+        string="Employee Documents")
     job_title = fields.Char("Job Title")
 
     # image: all image fields are base64 encoded and PIL-supported
@@ -294,108 +281,7 @@ class Employee(models.Model):
     # misc
     notes = fields.Text('Notes')
     color = fields.Integer('Color Index', default=0)
-    # tax
-    num_of_children = fields.Selection([
-        (0, '请选择'),
-        (1, '1'),
-        (2, '2'),
-    ], string='子女人数', required=True, track_visibility='always',
-        copy=False, default='0',
-        help="选择你的孩子数量")
-    tax_children = fields.Char(
-        'Tax Children',
-        compute='_compute_tax_children',
-        store=True)
-    parent_name = fields.Char('Parent Name',
-                              store=True)
-    is_parent_alive = fields.Selection(
-        [(0, "否"), (1, "是")], string='Is Parent Alive', track_visibility='always',
-        copy=False, store=True, default=0)
-    parent_relation = fields.Selection([
-        (0, '请选择'),
-        (1, '父亲'),
-        (2, '母亲'),
-        (3, '继父'),
-        (4, '继母'), (5, '养父'),
-        (6, '养母'),
-        (7, '祖父'),
-        (8, '祖母'),
-        (9, '外祖父'),
-        (10, '外祖母'),
-    ], string='Parent Relation',
-        store=True, default=0)
-    parent_birthday = fields.Date('Parent Birthday',
-                                  store=True)
-    num_of_brothers = fields.Selection([
-        (0, '请选择'),
-        (1, '1'),
-        (2, '2'),
-        (3, '3'),
-        (4, '4'),
-        (5, '5'),
-        (6, '6')
-    ], string='Brother num',
-        store=True, default=0)
-    percent = fields.Integer('Percent num',
-                             store=True, default=0)
-    tax_parents = fields.Char(
-        'Tax Parents',
-        compute='_compute_tax_parents',
-        store=True)
-    mortgage_interest = fields.Selection([
-        (0, '请选择'),
-        (1, '<1000'),
-        (2, '>=1000')], string='Mortgage interest',
-        store=True, default=0)
-    tax_interest = fields.Char(
-        'Tax Interest',
-        compute='_compute_tax_interest',
-        store=True)
-    is_renting = fields.Selection([(0, '没有'),
-                                   (1, '有')], string='Housing rent',
-                                  store=True, default=0)
-    living_city = fields.Selection([(0, '请选择'),
-                                    (1, '直辖市、省会城市、计划单列市'),
-                                    (2, '市辖区户籍人口超过100万的城市'),
-                                    (3, '市辖区户籍人口不超过100万的城市')], string='Living City',
-                                   store=True, default=0)
-    tax_rent = fields.Char(
-        'Tax Rent',
-        compute='_compute_tax_rent',
-        store=True)
-    is_join_continuing_education = fields.Selection([
-        (0, '请选择'),
-        (1, '是'),
-        (2, '否')], string='今年是否参加继续教育', track_visibility='always',
-        copy=False, default=0)
 
-    is_get_certificate = fields.Selection([
-        (0, '请选择'),
-        (1, '是'),
-        (2, '否')], string='今年是否获得教育证书', track_visibility='always',
-        copy=False, default=0)
-    certification_authority = fields.Selection([
-        (0, '请选择'),
-        (1, '教育部'),
-        (2, '财务部'),
-        (3, '人力资源部')
-    ], string='证书办法机构', track_visibility='always',
-        copy=False, default=0)
-
-    certificate_name = fields.Char('Certificate Name', store=True)
-    tax_certificate = fields.Char(
-        'Tax Certificate',
-        compute='_compute_tax_certificate',
-        store=True)
-    attachment_number = fields.Integer(
-        compute='_compute_attachment_number',
-        string='Number of Attachments')
-    review_state = fields.Integer("Review State",
-                                  default=0,
-                                  store=True)
-    text_review_state = fields.Char('Text Review State',
-                                    compute='_compute_review_state',
-                                    store=True)
 
     @api.multi
     def _compute_attachment_number(self):
@@ -420,10 +306,6 @@ class Employee(models.Model):
             'default_res_id': self.id}
         return res
 
-    is_show_tax_information = fields.Boolean(
-        'Is show tax information',
-        compute='_compute_is_show_tax_information',
-    )
 
     @api.constrains('parent_id')
     def _check_parent_id(self):
@@ -470,79 +352,7 @@ class Employee(models.Model):
         if self.resource_calendar_id and not self.tz:
             self.tz = self.resource_calendar_id.tz
 
-    @api.depends('num_of_children')
-    def _compute_tax_children(self):
-        for employee in self:
-            employee.tax_children = 0 if not employee.num_of_children else 1000 * \
-                employee.num_of_children
 
-    @api.depends('num_of_brothers', "percent")
-    def _compute_tax_parents(self):
-        for employee in self:
-            if not employee.num_of_brothers:
-                employee.tax_parents = 0
-            elif employee.num_of_brothers == 1:
-                employee.tax_parents = 2000
-            elif not employee.percent:
-                employee.tax_parents = 0
-            else:
-                employee.tax_parents = 20 * employee.percent
-
-    @api.depends('mortgage_interest')
-    def _compute_tax_interest(self):
-        for employee in self:
-            if not employee.mortgage_interest:
-                employee.tax_interest = 0
-            elif employee.mortgage_interest == 1:
-                employee.tax_interest = 0
-            else:
-                employee.tax_interest = 1000
-
-    @api.depends('living_city')
-    def _compute_tax_rent(self):
-        for employee in self:
-            if not employee.living_city:
-                employee.tax_rent = 0
-            elif employee.living_city == 1:
-                employee.tax_rent = 1500
-            elif employee.living_city == 2:
-                employee.tax_rent = 1100
-            else:
-                employee.tax_rent = 800
-
-    @api.depends('is_join_continuing_education', 'is_get_certificate')
-    def _compute_tax_certificate(self):
-        for employee in self:
-            if employee.is_join_continuing_education == 1 and employee.is_get_certificate == 1:
-                employee.tax_certificate = 700
-            elif employee.is_join_continuing_education == 1:
-                employee.tax_certificate = 400
-            elif employee.is_get_certificate == 1:
-                employee.tax_certificate = 300
-            else:
-                employee.tax_certificate = 0
-
-    @api.depends('review_state')
-    def _compute_review_state(self):
-        for employee in self:
-            if not employee.review_state:
-                employee.text_review_state = "审核中"
-            elif employee.review_state == 1:
-                employee.text_review_state = "审核通过"
-            elif employee.review_state == 2:
-                employee.text_review_state = "审核未通过"
-            else:
-                employee.text_review_state = "审核中"
-
-    @api.multi
-    def action_not_pass(self):
-        for employee in self:
-            employee.review_state = 2
-
-    @api.multi
-    def action_pass(self):
-        for employee in self:
-            employee.review_state = 1
 
     def _sync_user(self, user):
         vals = dict(

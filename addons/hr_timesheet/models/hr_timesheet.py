@@ -31,8 +31,6 @@ class AccountAnalyticLine(models.Model):
     is_approval= fields.Selection(
         [(0, "审核中"), (1, "通过"),(2, "驳回")], string='审批',
         track_visibility='always',
-        write="hr_timesheet.group_timesheet_manager",
-        read ="hr_timesheet.group_hr_timesheet_user",
         copy=False, store=True, default=0)
 
     is_myself =fields.Boolean( compute='_compute_myself',
