@@ -187,7 +187,7 @@
         </record>
 
         <!--
-            Menus and Actions
+            我被审批过的工时表
         -->
         <record id="act_hr_timesheet_line" model="ir.actions.act_window">
             <field name="name">我被审批过的工时表</field>
@@ -208,7 +208,9 @@
               </p>
             </field>
         </record>
-
+        <!--
+            我被审批过的工时表的表格属性
+        -->
         <record id="act_hr_timesheet_line_view_tree" model="ir.actions.act_window.view">
             <field name="view_mode">tree</field>
             <field name="sequence" eval="4"/>
@@ -216,6 +218,9 @@
             <field name="act_window_id" ref="act_hr_timesheet_line"/>
         </record>
 
+         <!--
+            我被审批过的工时表的每个view的属性
+        -->
         <record id="act_hr_timesheet_line_view_form" model="ir.actions.act_window.view">
             <field name="view_mode">form</field>
             <field name="sequence" eval="5"/>
@@ -265,6 +270,7 @@
                     <field name="project_id"/>
                     <field name="task_id" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]"/>
                     <field name="unit_amount"/>
+                     <field name="parent_id"/>
                     <templates>
                         <t t-name="kanban-box">
                             <div t-attf-class="oe_kanban_global_click">
@@ -375,7 +381,7 @@
                     <field name="unit_amount"/>
                     <templates>
                         <t t-name="kanban-box">
-                            <div t-attf-class="oe_kanban_global_click">
+                            <div t-at="oe_kanban_global_click">
                                 <div class="row">
                                     <div class="col-2">
                                         <img t-att-src="kanban_image('res.users', 'image_small', record.user_id.raw_value)" t-att-title="record.user_id.value" t-att-alt="record.user_id.value" width="40" height="40" class="oe_kanban_avatar float-left"/>

@@ -44,19 +44,6 @@
                                     options='{"terminology": "archive"}'/>
                             </button>
                         </div>
-                         <div class="oe_button_box" >
-                        <button string="通过" name="action_pass" style="margin-left:5px"  groups="hr.group_hr_user"/>
-                             <button string="不通过" name="action_not_pass" style="margin-left:5px"   groups="hr.group_hr_user"/>
-                        </div>
-                        <div class="oe_button_box" name="button_box">
-
-                            <button name="action_get_attachment_view" class="oe_stat_button" icon="fa-book"
-                                    type="object">
-                                <field name="attachment_number" widget="statinfo" string="附件上传"/>
-                            </button>
-
-                        </div>
-
 
                         <div id="o_employee_container"><div id="o_employee_main">
                         <field name="image" widget='image' class="oe_avatar" options='{"preview_image":"image_medium"}'/>
@@ -66,15 +53,7 @@
                                 <field name="name" placeholder="Employee's Name" required="True"/>
                             </h1>
                         </div>
-                         <div class="oe_title">
-                              <h1>
-                                   <field name="review_state" invisible="1"/>
-                                  <span  style="color:red" attrs="{'invisible': [('review_state', '!=', 2)]}"><field name="text_review_state" /></span>
-                                  <span  style="color:darkblue" attrs="{'invisible': [('review_state', '!=', 0)]}"><field name="text_review_state" /></span>
-                                  <span  style="color:green" attrs="{'invisible': [('review_state', '!=', 1)]}"><field name="text_review_state" /></span>
-                            </h1>
-                              </div>
-                        <field name="category_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="e.g. Part Time" groups="hr.group_hr_user"/>
+                        <field name="category_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="e.g. Part Time" groups="hr.group_hr_employer"/>
                         <notebook  >
                             <page name="public" string="Work Information">
                                 <group>
@@ -99,12 +78,12 @@
                                 </group>
                                 <field name="notes" placeholder="Other Information ..." colspan="4"/>
                             </page>
-                            <page name="personal_information" string="Private Information" groups="hr.group_hr_user">
+                            <page name="personal_information" string="Private Information" groups="hr.group_hr_employer">
                                 <group>
                                     <group string="Citizenship &amp; Other Information">
                                         <field name="country_id" options='{"no_open": True, "no_create": True}'/>
-                                        <field name="identification_id" groups="hr.group_hr_user"/>
-                                        <field name="passport_id" groups="hr.group_hr_user"/>
+                                        <field name="identification_id" groups="hr.group_hr_employer"/>
+                                        <field name="passport_id" groups="hr.group_hr_employer"/>
                                         <field name="bank_account_id" context="{'default_partner_id': address_home_id}"/>
                                     </group>
                                     <group string="Contact Information">
@@ -115,7 +94,7 @@
                                                 'form_view_ref': 'base.res_partner_view_form_private'}"
                                             options='{"always_reload": True, "highlight_first_line": True}'/>
                                         <field name="is_address_home_a_company" invisible="1"/>
-                                        <div class="text-warning" groups="hr.group_hr_user"
+                                        <div class="text-warning" groups="hr.group_hr_employer"
                                              attrs="{'invisible': [('is_address_home_a_company','=', False)]}">
                                             Use here the home address of the employee.
                                             This private address is used in the expense report reimbursement document.
@@ -123,19 +102,19 @@
                                         </div>
                                         <field name="emergency_contact"/>
                                         <field name="emergency_phone"/>
-                                        <field name="km_home_work" groups="hr.group_hr_user"/>
+                                        <field name="km_home_work" groups="hr.group_hr_employer"/>
                                     </group>
                                     <group string="Status">
                                         <field name="gender"/>
                                         <field name="marital"/>
-                                        <field name="spouse_complete_name" attrs="{'invisible': [('marital', 'not in', ['married', 'cohabitant'])]}" groups="hr.group_hr_user"/>
-                                        <field name="spouse_birthdate" attrs="{'invisible': [('marital', 'not in', ['married', 'cohabitant'])]}" groups="hr.group_hr_user"/>
+                                        <field name="spouse_complete_name" attrs="{'invisible': [('marital', 'not in', ['married', 'cohabitant'])]}" groups="hr.group_hr_employer"/>
+                                        <field name="spouse_birthdate" attrs="{'invisible': [('marital', 'not in', ['married', 'cohabitant'])]}" groups="hr.group_hr_employer"/>
                                         <field name="children"/>
                                     </group>
                                     <group string="Birth">
                                         <field name="birthday"/>
-                                        <field name="place_of_birth" groups="hr.group_hr_user"/>
-                                        <field name="country_of_birth" groups="hr.group_hr_user"/>
+                                        <field name="place_of_birth" groups="hr.group_hr_employer"/>
+                                        <field name="country_of_birth" groups="hr.group_hr_employer"/>
                                     </group>
                                     <group string="Work Permit" name="work_permit">
                                         <field name="visa_no"/>
@@ -155,56 +134,13 @@
                                     <field name="additional_note"/>
                                 </group>
                             </page>
-                            <page name="hr_settings" string="HR Settings" groups="hr.group_hr_user">
+                            <page name="hr_settings" string="HR Settings" groups="hr.group_hr_employer">
                                 <group>
                                     <group string='Status' name="active_group">
                                         <field name="company_id" groups="base.group_multi_company"/>
                                         <field name="user_id" string="Related User"/>
                                     </group>
                                 </group>
-                            </page>
-                            <page name="tax_information" string="Tax Information" groups="hr.group_hr_employer">
-                                    <group string="Basic information">
-                                        <field name="department_id" string="部门"/>
-                                         <field name="name" string="姓名"/>
-                                         <field name="identification_id" groups="hr.group_hr_employer" string="身份证号"/>
-                                        <field name="mobile_phone" widget="phone" string="手机号"/>
-                                    </group>
-
-                                    <group string="Children Education">
-                                         <field name="num_of_children" string="子女人数"/>
-                                         <span class="oe_inline" attrs="{'invisible':[('num_of_children','in',[0, False]),('tax_children','=','0')]}" ><field name="tax_children" /></span>
-                                    </group>
-                                    <group string="Parent status">
-                                        <field name="is_parent_alive" string="家里是否赡养60岁（含）以上父母及其他赡养人"/>
-
-                                    </group>
-                                    <group string="Parent detail status" attrs="{'invisible':[('is_parent_alive','in',[0,False])]}">
-                                             <field name="parent_name" string="法定赡养人姓名" />
-                                             <field name="parent_relation" string="关系" />
-                                             <field name="parent_birthday" string="赡养人生日" />
-                                             <field name="num_of_brothers" string="家里亲生兄弟姐妹总人数（包括自己）" />
-                                             <span class="oe_inline" style="white-space:nowrap" attrs="{'invisible':[('num_of_brothers','in',[1,False])]}"  >分摊比例，比例不超过50%<field name="percent" />%</span>
-                                             <br/>
-                                             <span class="oe_inline" attrs="{'invisible':[('num_of_brothers','in',[0, False]),('tax_parents','=','0')]}" ><field name="tax_parents" /></span>
-                                     </group>
-                                     <group string="Mortgage interest">
-                                         <field name="mortgage_interest" string="首套住房贷款每月利息"/>
-                                         <span class="oe_inline" attrs="{'invisible':[('mortgage_interest','in',[0, False]),('tax_interest','=','0')]}" ><field name="tax_interest" /></span>
-
-                                    </group>
-                                    <group string="Housing rent">
-                                         <field name="is_renting" string="是否有租房"/>
-                                         <field name="living_city" string="本人及配偶的主要工作城市"/>
-                                         <span class="oe_inline" attrs="{'invisible':[('living_city','in',[0, False]),('tax_rent','=','0')]}" ><field name="tax_rent" /></span>
-                                    </group>
-                                     <group string="Continuing Education">
-                                         <field name="is_join_continuing_education"  string="本年度是否有参加学历继续教育"/>
-                                         <field name="is_get_certificate" string="本年度是否有参加职业资格继续教育并已取得相关证书"/>
-                                         <field name="certification_authority" string="证书颁发部门"/>
-                                         <field name="certificate_name"/>
-                                         <span class="oe_inline" attrs="{'invisible':[('tax_certificate','in',[0, False])]}" ><field name="tax_certificate" /></span>
-                                    </group>
                             </page>
 
                         </notebook>
