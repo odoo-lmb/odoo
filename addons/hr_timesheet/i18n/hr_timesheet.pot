@@ -263,12 +263,7 @@ msgstr ""
 msgid "Manager"
 msgstr ""
 
-#. module: hr_timesheet
-#: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_line
-#: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_activity_mine
-#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
-msgid "My Timesheets"
-msgstr ""
+
 
 #. module: hr_timesheet
 #: model:ir.model.fields,field_description:hr_timesheet.field_report_project_task_user__hours_planned
@@ -549,3 +544,21 @@ msgstr ""
 msgid "per hour"
 msgstr ""
 
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_line_my_new
+#: model:ir.ui.menu,name:hr_timesheet.my_new_timesheet_menu_activity
+msgid "My Timesheet(Unapproved)"
+msgstr ""
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_line
+#: model:ir.ui.menu,name:hr_timesheet.my_timesheet_menu_activity
+msgid "My Timesheet(Approved)"
+msgstr ""
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_line_my_all_unapproved
+#: model:ir.ui.menu,name:hr_timesheet.my_timesheet_menu_activity_unapproved
+msgid "Team Timesheet(Unapproved)"
+msgstr ""

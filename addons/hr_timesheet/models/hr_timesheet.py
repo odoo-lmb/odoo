@@ -27,7 +27,10 @@ class AccountAnalyticLine(models.Model):
     employee_id = fields.Many2one('hr.employee', "Employee")
     parent_id = fields.Many2one('hr.employee', '审批员', groups="hr_timesheet.group_timesheet_manager")
     department_id = fields.Many2one('hr.department', "Department", compute='_compute_department_id', store=True, compute_sudo=True)
-
+    timesheet_type = fields.Selection(
+        [(0, ""), (1, "假期")], string='类型',
+        track_visibility='always',
+        copy=False, store=True, default=0)
     is_approval= fields.Selection(
         [(0, "审核中"), (1, "通过"),(2, "驳回")], string='审批',
         track_visibility='always',
@@ -98,6 +101,7 @@ class AccountAnalyticLine(models.Model):
                 raise ValidationError(
                     _('一日时间总计不能超过8.'))
 
+
         sudo_self = self.sudo()  # this creates only one env for all operation that required sudo()
         # (re)compute the amount (depending on unit_amount, employee_id for the cost, and account_id for currency)
 
@@ -114,7 +118,25 @@ class AccountAnalyticLine(models.Model):
             #     temp_dict[line.employee_id] = {}
             #     temp_dict[line.employee_id][line.date] = line.unit_amount
 
+    @api.constrains('is_approval')
+    def _check_is_approval(self):
+        temp_dict = {}
 
+        for line in self:
+            if line.is_approval == 1:
+                rst = self.env['account.analytic.line'].search(
+                    [('user_id', '=', line.user_id.id), ('date', '=', line.date)])
+                count_amount = 0
+                for temp in rst:
+                    print(
+                        "id:%s amount:%s" % (temp.id, temp.unit_amount))
+                    if temp.id == line.id:
+                        count_amount += line.unit_amount
+                    else:
+                        count_amount += temp.unit_amount
+                if count_amount < 8:
+                    raise ValidationError(
+                        _('一日时间总计不能少于8.'))
 
     # ----------------------------------------------------
     # ORM overrides
