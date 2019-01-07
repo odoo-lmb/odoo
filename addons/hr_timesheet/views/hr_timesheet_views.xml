@@ -104,6 +104,29 @@
             </field>
         </record>
 
+         <record id="hr_timesheet_line_search" model="ir.ui.view">
+            <field name="name">account.analytic.line.search</field>
+            <field name="model">account.analytic.line</field>
+            <field name="arch" type="xml">
+                <search string="Timesheet">
+                    <field name="date" />
+                    <field name="employee_id" />
+                    <field name="project_id" />
+                    <field name="task_id" />
+                    <field name="name" />
+                    <filter name="mine" string="My Timesheet(Approved)" domain="[('user_id', '=', uid)]"/>
+                    <separator/>
+                    <filter name="month" string="Date" date="date"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Employee" name="groupby_employee" domain="[]" context="{'group_by':'employee_id'}"/>
+                        <filter string="Project" name="groupby_project" domain="[]" context="{'group_by':'project_id'}"/>
+                        <filter string="Task" name="groupby_task" domain="[]" context="{'group_by':'task_id'}"/>
+                        <filter string="Timesheet Date" name="groupby_date" domain="[]" context="{'group_by':'date'}" help="Timesheet by Date"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
         # 我的工时表（待审批）
         <record id="act_hr_timesheet_line_my_new" model="ir.actions.act_window">
             <field name="name">My Timesheet(Unapproved)</field>
@@ -226,28 +249,7 @@
             </field>
         </record>
 
-        <record id="hr_timesheet_line_search" model="ir.ui.view">
-            <field name="name">account.analytic.line.search</field>
-            <field name="model">account.analytic.line</field>
-            <field name="arch" type="xml">
-                <search string="Timesheet">
-                    <field name="date" />
-                    <field name="employee_id" />
-                    <field name="project_id" />
-                    <field name="task_id" />
-                    <field name="name" />
-                    <filter name="mine" string="My Timesheet(Approved)" domain="[('user_id', '=', uid)]"/>
-                    <separator/>
-                    <filter name="month" string="Date" date="date"/>
-                    <group expand="0" string="Group By">
-                        <filter string="Employee" name="groupby_employee" domain="[]" context="{'group_by':'employee_id'}"/>
-                        <filter string="Project" name="groupby_project" domain="[]" context="{'group_by':'project_id'}"/>
-                        <filter string="Task" name="groupby_task" domain="[]" context="{'group_by':'task_id'}"/>
-                        <filter string="Timesheet Date" name="groupby_date" domain="[]" context="{'group_by':'date'}" help="Timesheet by Date"/>
-                    </group>
-                </search>
-            </field>
-        </record>
+
         <record id="view_kanban_account_analytic_line" model="ir.ui.view">
             <field name="name">account.analytic.line.kanban</field>
             <field name="model">account.analytic.line</field>
