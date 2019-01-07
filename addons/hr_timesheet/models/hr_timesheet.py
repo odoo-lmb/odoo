@@ -25,7 +25,7 @@ class AccountAnalyticLine(models.Model):
     project_id = fields.Many2one('project.project', 'Project', domain=[('allow_timesheets', '=', True)])
 
     employee_id = fields.Many2one('hr.employee', "Employee")
-    parent_id = fields.Many2one('hr.employee', '审批员', groups="hr_timesheet.group_timesheet_manager")
+    approver = fields.Many2one('hr.employee', '审批员',store=True,)
     department_id = fields.Many2one('hr.department', "Department", compute='_compute_department_id', store=True, compute_sudo=True)
     timesheet_type = fields.Selection(
         [(0, ""), (1, "假期")], string='类型',
@@ -68,12 +68,14 @@ class AccountAnalyticLine(models.Model):
     def _compute_myself(self):
          self.is_myself = (self.user_id.id == self.env.user.id)
 
-    @api.onchange('parent_id')
-    def onchange_parent_id(self):
+    @api.onchange('approver')
+    def onchange_approver(self):
         # force domain on task when project is set
-        if not self.parent_id:
+        if not self.approver:
             if self.employee_id:
-                self.parent_id = self.employee_id.manager_id
+                if self.employee_id.approver:
+                    self.approver = self.employee_id.approver
+
 
 
     @api.constrains('unit_amount')
@@ -151,9 +153,9 @@ class AccountAnalyticLine(models.Model):
             else:
                 ts_user_id = self._default_user()
             values['employee_id'] = self.env['hr.employee'].search([('user_id', '=', ts_user_id)], limit=1).id
-            if not values.get('parent_id'):
+            if not values.get('approver'):
                 employee = self.env['hr.employee'].browse(values['employee_id'])
-                values['parent_id'] = employee.parent_id.id
+                values['approver'] = employee.approver.id
 
         values = self._timesheet_preprocess(values)
         result = super(AccountAnalyticLine, self).create(values)

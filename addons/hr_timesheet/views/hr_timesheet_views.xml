@@ -42,7 +42,7 @@
                 <tree editable="top" string="Timesheet Activities" import="false" create="false">
                     <field name="date" readonly="1"/>
                     <field name="name" readonly="1"/>
-                    <field name="parent_id" readonly="1"/>
+                    <field name="approver" readonly="1"/>
                     <field name="is_approval" readonly="1"/>
                     <field name="project_id" readonly="1" required="1"/>
                     <field name="task_id" readonly="1" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]"/>
@@ -202,7 +202,7 @@
                     <field name="project_id" required="1"/>
                     <field name="task_id" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]"/>
                     <field name="name"/>
-                     <field name="parent_id" readonly="1"/>
+                     <field name="approver" readonly="1"/>
                     <field name="is_approval" readonly="1"/>
                 </tree>
             </field>
@@ -258,7 +258,7 @@
                     <field name="date"/>
                     <field name="user_id"/>
                     <field name="name" />
-                    <field name="parent_id" />
+                    <field name="approver" />
                     <field name="is_approval"/>
                     <field name="project_id" />
                     <field name="task_id"  context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]"/>
@@ -360,7 +360,7 @@
                 <field name="project_id" readonly="1" required="1"/>
                 <field name="task_id" readonly="1" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]"/>
                 <field name="name" readonly="1"/>
-                 <field name="parent_id"/>
+                 <field name="approver"/>
                 <field name="is_approval" />
             </tree>
         </field>
@@ -377,7 +377,7 @@
                 <field name="project_id"/>
                 <field name="task_id" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]"/>
                 <field name="unit_amount"/>
-                 <field name="parent_id"/>
+                 <field name="approver"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div t-attf-class="oe_kanban_global_click">
@@ -415,7 +415,7 @@
             <field name="name">Team Timesheet(Unapproved)</field>
             <field name="res_model">account.analytic.line</field>
             <field name="view_mode">tree,form</field>
-            <field name="domain">[('project_id', '!=', False), ('parent_id.user_id', '=', uid),('is_approval','in',[False,'0','2'])]</field>
+            <field name="domain">[('project_id', '!=', False), ('approver.user_id', '=', uid),('is_approval','in',[False,'0','2'])]</field>
             <field name="context">{
                 "search_default_week":1,
             }</field>
@@ -467,7 +467,7 @@
         <field name="name">Team Timesheet(Approved)</field>
         <field name="res_model">account.analytic.line</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[('project_id', '!=', False), ('parent_id.user_id', '=', uid)]</field>
+        <field name="domain">[('project_id', '!=', False), ('approver.user_id', '=', uid)]</field>
         <field name="context">{
             "search_default_week":1,
         }</field>
