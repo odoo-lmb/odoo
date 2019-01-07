@@ -562,3 +562,9 @@ msgstr ""
 #: model:ir.ui.menu,name:hr_timesheet.my_timesheet_menu_activity_unapproved
 msgid "Team Timesheet(Unapproved)"
 msgstr ""
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_line_my_all
+#: model:ir.ui.menu,name:hr_timesheet.my_timesheet_menu_activity
+msgid "Team Timesheet(Approved)"
+msgstr ""
