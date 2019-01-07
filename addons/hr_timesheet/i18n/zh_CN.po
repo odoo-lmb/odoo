@@ -279,6 +279,11 @@ msgid "Manager"
 msgstr "管理员"
 
 #. module: hr_timesheet
+#: model:res.groups,name:hr_timesheet.group_timesheet_approver
+msgid "Approver"
+msgstr "审批员"
+
+#. module: hr_timesheet
 #: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_line
 #: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_activity_mine
 #: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
