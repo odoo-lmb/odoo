@@ -278,6 +278,7 @@ class Employee(models.Model):
         'hr.employee.category', 'employee_category_rel',
         'emp_id', 'category_id',
         string='Tags')
+    approver = fields.Many2one('hr.employee', string='审批员')
     # misc
     notes = fields.Text('Notes')
     color = fields.Integer('Color Index', default=0)
@@ -342,6 +343,8 @@ class Employee(models.Model):
     def _onchange_department(self):
         self.parent_id = self.department_id.manager_id
 
+
+
     @api.onchange('user_id')
     def _onchange_user(self):
         if self.user_id:
@@ -352,7 +355,10 @@ class Employee(models.Model):
         if self.resource_calendar_id and not self.tz:
             self.tz = self.resource_calendar_id.tz
 
-
+    @api.onchange('parent_id')
+    def _onchange_parent_id(self):
+        if not self.approver:
+            self.approver = self.parent_id
 
     def _sync_user(self, user):
         vals = dict(
@@ -534,3 +540,11 @@ class Department(models.Model):
                 ('parent_id', '=', department.manager_id.id)
             ])
         employees.write({'parent_id': manager_id})
+
+        for department in self:
+            employees = employees | self.env['hr.employee'].search([
+                ('id', '!=', manager_id),
+                ('department_id', '=', department.id),
+                ('approver', '=', False)
+            ])
+        employees.write({'approver': manager_id})
