@@ -553,7 +553,7 @@ msgstr ""
 
 #. module: hr_timesheet
 #: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_line
-#: model:ir.ui.menu,name:hr_timesheet.my_timesheet_menu_activity
+#: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_activity_mine
 msgid "My Timesheet(Approved)"
 msgstr ""
 
