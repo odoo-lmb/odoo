@@ -1151,6 +1151,11 @@ msgid "Officer"
 msgstr "主管"
 
 #. module: hr
+#: model:res.groups,name:hr.group_hr_employer
+msgid "Employer"
+msgstr "员工"
+
+#. module: hr
 #: selection:hr.employee,certificate:0 selection:hr.employee,gender:0
 msgid "Other"
 msgstr "其他"

@@ -445,6 +445,11 @@ msgid "Education"
 msgstr ""
 
 #. module: hr
+#: model:res.groups,name:hr.group_hr_employer
+msgid "Employer"
+msgstr ""
+
+#. module: hr
 #: model:ir.model,name:hr.model_mail_alias
 msgid "Email Aliases"
 msgstr ""
