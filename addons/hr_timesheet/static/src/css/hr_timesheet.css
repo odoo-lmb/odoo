@@ -1,0 +1,14 @@
+
+
+.my_custom_class {
+    font-size: 50px;
+
+
+}
+.constant_width{
+    width: 6%;
+}
+.max_width{
+    min-width:20%;
+    max-width:30%;
+}
