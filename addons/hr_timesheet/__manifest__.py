@@ -40,4 +40,5 @@ up a management by affair.
     'installable': True,
     'application': False,
     'auto_install': False,
+    'css': ['static/src/css/hr_timesheet.css'],
 }
