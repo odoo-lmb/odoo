@@ -28,9 +28,9 @@ class AccountAnalyticLine(models.Model):
     approver = fields.Many2one('hr.employee', '审批员',store=True,)
     department_id = fields.Many2one('hr.department', "Department", compute='_compute_department_id', store=True, compute_sudo=True)
     timesheet_type = fields.Selection(
-        [(0, ""), (1, "假期")], string='类型',
+        [(1, "日常工作"), (2, "调休"), (3, "年假"), (4, "病假"), (5, "婚假"), (6, "产假"), (7, "陪产假"), (8, "其他假期")], string='类型',
         track_visibility='always',
-        copy=False, store=True, default=0)
+        copy=False, store=True, default=1)
     is_approval= fields.Selection(
         [(0, "审核中"), (1, "通过"),(2, "驳回")], string='审批',
         track_visibility='always',
