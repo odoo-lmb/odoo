@@ -129,16 +129,8 @@ class AccountAnalyticLine(models.Model):
                 rst = self.env['account.analytic.line'].search(
                     [('user_id', '=', line.user_id.id), ('date', '=', line.date)])
                 count_amount = 0
-                for temp in rst:
-                    print(
-                        "id:%s amount:%s" % (temp.id, temp.unit_amount))
-                    if temp.id == line.id:
-                        count_amount += line.unit_amount
-                    else:
-                        count_amount += temp.unit_amount
-                if count_amount < 8:
-                    raise ValidationError(
-                        _('一日时间总计不能少于8.'))
+
+
 
     # ----------------------------------------------------
     # ORM overrides
