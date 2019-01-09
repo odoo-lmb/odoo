@@ -506,7 +506,7 @@
         <field name="name">Team Timesheet(Approved)</field>
         <field name="res_model">account.analytic.line</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[('project_id', '!=', False), ('approver.user_id', '=', uid)]</field>
+        <field name="domain">[('project_id', '!=', False), ('approver.user_id', '=', uid), ('is_approval','=','1')]</field>
         <field name="context">{
             "search_default_week":1,
         }</field>
