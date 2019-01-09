@@ -4,11 +4,11 @@
         <!--
             Analytic Accounts with project
         -->
-        <!--<template id="assets_backend" name="odtree assets" inherit_id="web.assets_backend">-->
-            <!--<xpath expr="." position="inside">-->
-                <!--<link rel="stylesheet" type="text/css" href="/hr_timesheet/static/src/css/hr_timesheet.css"/>-->
-            <!--</xpath>-->
-        <!--</template>-->
+        <template id="assets_backend" name="odtree assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <link rel="stylesheet" type="text/css" href="/hr_timesheet/static/src/css/hr_timesheet.css"/>
+            </xpath>
+        </template>
         <record id="account_analytic_account_view_form_inherit" model="ir.ui.view">
             <field name="name">account.analytic.account.form.inherit</field>
             <field name="model">account.analytic.account</field>
@@ -45,14 +45,14 @@
             <field name="model">account.analytic.line</field>
             <field name="arch" type="xml">
                 <tree editable="top" string="Timesheet Activities" import="false" create="false">
-                    <field name="date" readonly="1" />
-                    <field name="name"  readonly="1" string="工作日报简述" />
-                    <field name="approver" readonly="1" />
-                    <field name="is_approval" readonly="1" />
-                    <field name="timesheet_type" readonly="1" />
-                    <field name="project_id" readonly="1" required="1" />
-                    <field name="task_id" readonly="1" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" />
-                    <field name="unit_amount" readonly="1" widget="timesheet_uom"/>
+                    <field name="date" readonly="1"  class="constant_width"/>
+                    <field name="name"  readonly="1" string="工作日报简述" class="max_width"/>
+                    <field name="approver" readonly="1" class="constant_width"/>
+                    <field name="is_approval" readonly="1" class="constant_width" />
+                    <field name="timesheet_type" readonly="1" class="constant_width"/>
+                    <field name="project_id" readonly="1" required="1" class="max_width"/>
+                    <field name="task_id" readonly="1" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" class="max_width" />
+                    <field name="unit_amount" readonly="1" string="持续时间（小时）" class="constant_width"/>
                 </tree>
             </field>
         </record>
@@ -203,14 +203,14 @@
             <field name="model">account.analytic.line</field>
             <field name="arch" type="xml">
                 <tree editable="top" string="Timesheet Activities" import="false" >
-                    <field name="date" />
-                     <field name="unit_amount" widget="timesheet_uom"  />
-                    <field name="project_id" required="1" />
-                    <field name="task_id" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" />
-                      <field name="timesheet_type" />
-                    <field name="name" string="工作日报简述" />
-                     <field name="approver" readonly="1" />
-                    <field name="is_approval" readonly="1" />
+                    <field name="date" class="constant_width"/>
+                     <field name="unit_amount" string="持续时间（小时）"  class="constant_width" />
+                    <field name="project_id" required="1" class="max_width"/>
+                    <field name="task_id" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" class="max_width"/>
+                      <field name="timesheet_type" class="constant_width" />
+                    <field name="name" string="工作日报简述" class="max_width" />
+                     <field name="approver" readonly="1" class="constant_width"/>
+                    <field name="is_approval" readonly="1" class="constant_width"/>
                 </tree>
             </field>
         </record>
@@ -368,7 +368,7 @@
                     <sheet string="Analytic Entry">
                         <group>
                             <group>
-                                 <field name="employee_id" readonly="1" />
+                               <field name="employee_id" readonly="1" />
                                 <field name="date" readonly="1" />
                                  <field name="unit_amount" widget="timesheet_uom" readonly="1"  />
                                   <field name="timesheet_type" readonly="1" />
@@ -377,7 +377,6 @@
                                 <field name="name" string="工作日报简述" readonly="1"  />
                                  <field name="approver" readonly="1" />
                                 <field name="is_approval" />
-
                             </group>
                         </group>
                     </sheet>
@@ -391,15 +390,15 @@
         <field name="model">account.analytic.line</field>
         <field name="arch" type="xml">
             <tree string="Timesheet Activities" import="false" create="false" >
-                 <field name="employee_id" readonly="1" />
-                <field name="date" readonly="1" />
-                 <field name="unit_amount" widget="timesheet_uom" readonly="1"  />
-                  <field name="timesheet_type" readonly="1" />
-                <field name="project_id" readonly="1" required="1" />
-                <field name="task_id" readonly="1" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" />
-                <field name="name" string="工作日报简述" readonly="1"  />
-                 <field name="approver" readonly="1" />
-                <field name="is_approval" />
+               <field name="employee_id" readonly="1" class="constant_width"/>
+                <field name="date" readonly="1"  class="constant_width"/>
+                 <field name="unit_amount" string="持续时间（小时）" readonly="1"  class="constant_width"/>
+                  <field name="timesheet_type" readonly="1" class="constant_width" />
+                <field name="project_id" readonly="1" required="1" class="max_width"/>
+                <field name="task_id" readonly="1" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" class="max_width" />
+                <field name="name" string="工作日报简述" readonly="1" class="max_width"/>
+                 <field name="approver" readonly="1" class="constant_width" />
+                <field name="is_approval" class="constant_width"/>
             </tree>
         </field>
     </record>
