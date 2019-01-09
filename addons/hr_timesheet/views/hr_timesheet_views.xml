@@ -358,6 +358,34 @@
 
 
     # 团队工时表（待审批）
+                <record id="hr_timesheet_line_form_my" model="ir.ui.view">
+            <field name="name">account.analytic.line.form</field>
+            <field name="model">account.analytic.line</field>
+            <field name="priority">1</field>
+            <field name="inherit_id" eval="False"/>
+            <field name="arch" type="xml">
+                <form string="Analytic Entry">
+                    <sheet string="Analytic Entry">
+                        <group>
+                            <group>
+                                 <field name="employee_id" readonly="1" />
+                                <field name="date" readonly="1" />
+                                 <field name="unit_amount" widget="timesheet_uom" readonly="1"  />
+                                  <field name="timesheet_type" readonly="1" />
+                                <field name="project_id" readonly="1" required="1" />
+                                <field name="task_id" readonly="1" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" />
+                                <field name="name" string="工作日报简述" readonly="1"  />
+                                 <field name="approver" readonly="1" />
+                                <field name="is_approval" />
+
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
             <record id="hr_timesheet_line_my_tree" model="ir.ui.view">
         <field name="name">account.analytic.line.tree.hr_my_timesheet</field>
         <field name="model">account.analytic.line</field>
@@ -370,7 +398,7 @@
                 <field name="project_id" readonly="1" required="1" />
                 <field name="task_id" readonly="1" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" />
                 <field name="name" string="工作日报简述" readonly="1"  />
-                 <field name="approver" />
+                 <field name="approver" readonly="1" />
                 <field name="is_approval" />
             </tree>
         </field>
@@ -381,13 +409,14 @@
         <field name="model">account.analytic.line</field>
         <field name="arch" type="xml">
             <kanban class="o_kanban_mobile">
-                <field name="date" />
-                <field name="user_id"/>
-                <field name="name"/>
-                <field name="project_id"/>
-                <field name="task_id" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]"/>
-                <field name="unit_amount"/>
-                 <field name="approver"/>
+                <field name="date" readonly="1"  />
+                <field name="user_id" readonly="1" />
+                <field name="name" readonly="1" />
+                <field name="project_id" readonly="1" />
+                <field name="task_id" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" readonly="1" />
+                 <field name="unit_amount" widget="timesheet_uom" readonly="1"  />
+                 <field name="approver" readonly="1" />
+                 <field name="is_approval" />
                 <templates>
                     <t t-name="kanban-box">
                         <div t-attf-class="oe_kanban_global_click">
@@ -451,14 +480,14 @@
         <record id="act_hr_timesheet_line_view_form_unapproved" model="ir.actions.act_window.view">
             <field name="view_mode">form</field>
             <field name="sequence" eval="5"/>
-            <field name="view_id" ref="hr_timesheet_line_form"/>
+            <field name="view_id" ref="hr_timesheet_line_form_my"/>
             <field name="act_window_id" ref="act_hr_timesheet_line_my_all_unapproved"/>
         </record>
 
         <record id="act_hr_timesheet_line_view_kanban_unapproved" model="ir.actions.act_window.view">
             <field name="view_mode">kanban</field>
             <field name="sequence">6</field>
-            <field name="view_id" ref="hr_timesheet.view_kanban_account_analytic_line"/>
+            <field name="view_id" ref="hr_timesheet.view_kanban_account_analytic_line_my_all"/>
             <field name="act_window_id" ref="act_hr_timesheet_line_my_all_unapproved"/>
         </record>
 
