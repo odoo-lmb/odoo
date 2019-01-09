@@ -13,3 +13,4 @@ access_hr_employee_employer,hr.employee employer,model_hr_employee,group_hr_empl
 access_hr_employee_resource_employer,resource.resource.employer,resource.model_resource_resource,group_hr_employer,1,0,0,0
 access_hr_job_employer,hr.job employer,model_hr_job,group_hr_employer,1,0,0,0
 access_ir_property_hr_employer,ir_property hr_employer,base.model_ir_property,group_hr_employer,1,0,0,0
+access_hr_employee_manager_employer,hr.employee employer manager,model_hr_employee,group_hr_manager,1,1,1,1
