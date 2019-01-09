@@ -35,6 +35,7 @@
         <menuitem id="menu_hr_timesheet_attendance_report"
                   parent="hr_timesheet.menu_timesheets_reports"
                   action="action_hr_timesheet_attendance_report"
+                   groups="hr_timesheet.group_timesheet_manager"
                   name="Timesheet / Attendance"/>
     </data>
 </odoo>

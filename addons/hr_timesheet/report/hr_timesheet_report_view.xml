@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-         <template id="assets_backend" name="odtree assets" inherit_id="web.assets_backend">
-            <xpath expr="." position="inside">
-                <link rel="stylesheet" type="text/css" href="/hr_timesheet/static/src/css/hr_timesheet.css"/>
-            </xpath>
-        </template>
         <record id="act_hr_timesheet_report" model="ir.actions.act_window">
             <field name="name">By Employee</field>
             <field name="res_model">account.analytic.line</field>
@@ -123,7 +118,7 @@
         <menuitem id="menu_timesheets_reports"
             name="Reporting"
             parent="timesheet_menu_root"
-            groups="hr_timesheet.group_timesheet_manager"
+            groups="hr_timesheet.group_timesheet_approver"
             sequence="99"/>
 
         <menuitem id="menu_timesheets_reports_timesheet"

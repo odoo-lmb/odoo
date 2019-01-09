@@ -4,11 +4,6 @@
         <!--
             Analytic Accounts with project
         -->
-        <template id="assets_backend" name="odtree assets" inherit_id="web.assets_backend">
-            <xpath expr="." position="inside">
-                <link rel="stylesheet" type="text/css" href="/hr_timesheet/static/src/css/hr_timesheet.css"/>
-            </xpath>
-        </template>
         <record id="account_analytic_account_view_form_inherit" model="ir.ui.view">
             <field name="name">account.analytic.account.form.inherit</field>
             <field name="model">account.analytic.account</field>
