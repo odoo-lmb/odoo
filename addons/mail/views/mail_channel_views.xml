@@ -204,23 +204,24 @@
             }&quot;"/>
         </record>
 
-    <menuitem
-        id="mail.menu_root_discuss"
-        name="Discuss"
-        action="action_discuss"
-        web_icon="mail,static/description/icon.png"
-        groups="base.group_user"
-        sequence="1"/>
+        <!--屏蔽讨论-->
+    <!--<menuitem-->
+        <!--id="mail.menu_root_discuss"-->
+        <!--name="Discuss"-->
+        <!--action="action_discuss"-->
+        <!--web_icon="mail,static/description/icon.png"-->
+        <!--groups="base.group_user"-->
+        <!--sequence="1"/>-->
 
     <!--
         This menuitem will be activated by integrations modules (like github, twitter, ...). It
         is a hook to ease other modules to plug into mail.
     -->
-    <record id="mail.mail_channel_integrations_menu" model="ir.ui.menu">
-        <field name="name">Integrations</field>
-        <field name="parent_id" ref="mail.menu_root_discuss"></field>
-        <field name="active" eval="False"></field>
-    </record>
+    <!--<record id="mail.mail_channel_integrations_menu" model="ir.ui.menu">-->
+        <!--<field name="name">Integrations</field>-->
+        <!--<field name="parent_id" ref="mail.menu_root_discuss"></field>-->
+        <!--<field name="active" eval="False"></field>-->
+    <!--</record>-->
 
     </data>
 </odoo>
