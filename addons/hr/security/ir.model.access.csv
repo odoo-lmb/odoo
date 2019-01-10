@@ -9,7 +9,7 @@ access_hr_department_employee,hr.department.employee,model_hr_department,base.gr
 access_hr_job_user,hr.job user,model_hr_job,group_hr_user,1,1,1,1
 access_ir_property_hr_user,ir_property hr_user,base.model_ir_property,group_hr_user,1,1,1,0
 access_hr_employee_category_employer,hr.employee.category.employer,model_hr_employee_category,group_hr_employer,1,0,0,0
-access_hr_employee_employer,hr.employee employer,model_hr_employee,group_hr_employer,1,0,0,1
+access_hr_employee_employer,hr.employee employer,model_hr_employee,group_hr_employer,1,0,0,0
 access_hr_employee_resource_employer,resource.resource.employer,resource.model_resource_resource,group_hr_employer,1,0,0,0
 access_hr_job_employer,hr.job employer,model_hr_job,group_hr_employer,1,0,0,0
 access_ir_property_hr_employer,ir_property hr_employer,base.model_ir_property,group_hr_employer,1,0,0,0
