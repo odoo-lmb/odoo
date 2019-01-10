@@ -38,6 +38,7 @@
         </record>
         <record id="group_timesheet_approver" model="res.groups">
             <field name="name">Approver</field>
+            <field name="category_id" ref="base.module_category_hr_timesheet"/>
              <field name="implied_ids" eval="[(4, ref('group_hr_timesheet_user')), (4, ref('hr.group_hr_user'))]"/>
              <field name="perm_create" eval="1"/>
             <field name="perm_write" eval="1"/>
