@@ -12,6 +12,6 @@ access_project_task,project.task.timesheet.user,model_project_task,hr_timesheet.
 access_account_analytic_line_approver,analytic.account.analytic.line.timesheet.approver,analytic.model_account_analytic_line,hr_timesheet.group_timesheet_approver,1,1,1,1
 access_account_analytic_approver,analytic.account.analytic.timesheet.approver,analytic.model_account_analytic_account,hr_timesheet.group_timesheet_approver,1,1,1,1
 access_uom_uom_hr_timesheet_approver,uom.uom.timesheet.approver,uom.model_uom_uom,hr_timesheet.group_timesheet_approver,1,1,1,1
-access_project_project,project.project.timesheet.approver,model_project_project,hr_timesheet.group_timesheet_approver,1,1,1,1
-access_project_task,project.task.timesheet.approver,model_project_task,hr_timesheet.group_timesheet_approver,1,1,1,1
+access_project_project,project.project.timesheet.approver,model_project_project,hr_timesheet.group_timesheet_approver,1,0,0,0
+access_project_task,project.task.timesheet.approver,model_project_task,hr_timesheet.group_timesheet_approver,1,0,0,0
 access_account_analytic_line_project_approver,account.analytic.line,analytic.model_account_analytic_line,hr_timesheet.group_timesheet_approver,1,1,1,1
