@@ -15,3 +15,4 @@ access_uom_uom_hr_timesheet_approver,uom.uom.timesheet.approver,uom.model_uom_uo
 access_project_project,project.project.timesheet.approver,model_project_project,hr_timesheet.group_timesheet_approver,1,0,0,0
 access_project_task,project.task.timesheet.approver,model_project_task,hr_timesheet.group_timesheet_approver,1,0,0,0
 access_account_analytic_line_project_approver,account.analytic.line,analytic.model_account_analytic_line,hr_timesheet.group_timesheet_approver,1,1,1,1
+access_account_analytic_line_project_manager,account.analytic.line,analytic.model_account_analytic_line,hr_timesheet.group_timesheet_manager,1,1,1,1
