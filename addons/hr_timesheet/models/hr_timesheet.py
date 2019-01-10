@@ -141,7 +141,8 @@ class AccountAnalyticLine(models.Model):
         # 判断类型
         timesheet_type = values.get('timesheet_type')
         project_id = values.get('project_id')
-        if timesheet_type not in [1, 2] and project_id != 8:
+        project_name = self.env['project.project'].search([('id', '=', project_id)], limit=1).name
+        if timesheet_type not in [1, 2] and project_name != '假期':
             raise UserError(_('其他类型请选择项目为假期，谢谢'))
 
         if timesheet_type in [1, 2]:
