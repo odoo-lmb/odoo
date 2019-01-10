@@ -128,6 +128,25 @@ msgstr ""
 msgid "By Task"
 msgstr ""
 
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_report2
+#: model:ir.ui.menu,name:hr_timesheet.menu_hr_activity_analysis2
+msgid "All Employee"
+msgstr ""
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.timesheet_action_report_by_project2
+#: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_report_timesheet_by_project2
+msgid "All Project"
+msgstr ""
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.timesheet_action_report_by_task2
+#: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_report_timesheet_by_task2
+msgid "All Task"
+msgstr ""
+
 #. module: hr_timesheet
 #: model:ir.model,name:hr_timesheet.model_res_company
 msgid "Companies"

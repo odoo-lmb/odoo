@@ -57,7 +57,7 @@ class AccountAnalyticLine(models.Model):
 
     @api.onchange('employee_id')
     def _onchange_employee_id(self):
-        self.user_id = self.employee_id.user_id
+        self.user_id = self.employee_id.user_id.id
 
     @api.depends('employee_id')
     def _compute_department_id(self):
@@ -132,12 +132,10 @@ class AccountAnalyticLine(models.Model):
                     [('user_id', '=', line.user_id.id), ('date', '=', line.date)])
                 count_amount = 0
 
-    @api.constrains('employee_id')
-    def _check_employee_id(self):
-        for line in self:
-            if self.user_id.id == self.env.user.id:
-                if line.is_approval == 2:
-                    line.is_approval = 0
+    # @api.constrains('employee_id')
+    # def _check_employee_id(self):
+    #     for line in self:
+    #
 
 
 
@@ -150,18 +148,16 @@ class AccountAnalyticLine(models.Model):
     @api.model
     def create(self, values):
         # 判断类型
-        holiday_name = "假期"
         timesheet_type = values.get('timesheet_type')
         project_id = values.get('project_id')
-        project_name = self.env['project.project'].search([('id', '=', project_id)], limit=1).name
-        if timesheet_type not in [1, 2] and project_name != holiday_name:
+        if timesheet_type not in [1, 2] and project_id != 8:
             raise UserError(_('其他类型请选择项目为假期，谢谢'))
 
         if timesheet_type in [1, 2]:
             if not values.get('name'):
                 raise UserError(_('请填写工作简报，谢谢'))
-            if project_name == holiday_name:
-                raise UserError(_('日常工作和调休请不要选择项目为假期，谢谢'))
+            if project_id == 8:
+                raise UserError(_('普通类型请不要选择项目为假期，谢谢'))
 
         # compute employee only for timesheet lines, makes no sense for other lines
         if not values.get('employee_id') and values.get('project_id'):
@@ -183,6 +179,9 @@ class AccountAnalyticLine(models.Model):
     @api.multi
     def write(self, values):
         values = self._timesheet_preprocess(values)
+        if self.employee_id.user_id.id == self.env.user.id:
+            if self.is_approval == 2:
+                values['is_approval'] = 0
         result = super(AccountAnalyticLine, self).write(values)
         # applied only for timesheet
         self.filtered(lambda t: t.project_id)._timesheet_postprocess(values)

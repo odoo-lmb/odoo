@@ -4,6 +4,23 @@
         <record id="act_hr_timesheet_report" model="ir.actions.act_window">
             <field name="name">By Employee</field>
             <field name="res_model">account.analytic.line</field>
+            <field name="domain">[('project_id', '!=', False),('is_approval', '=', '1'),'|', ('user_id', '=',uid),('approver.user_id', '=', uid)]</field>
+            <field name="context">{'search_default_groupby_employee':1,}</field>
+            <field name="search_view_id" ref="hr_timesheet_line_search"/>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Record a new activity
+              </p><p>
+                You can register and track your workings hours by project every
+                day. Every time spent on a project will become a cost and can be re-invoiced to
+                customers if required.
+              </p>
+            </field>
+        </record>
+
+         <record id="act_hr_timesheet_report2" model="ir.actions.act_window">
+            <field name="name">ALL Employee</field>
+            <field name="res_model">account.analytic.line</field>
             <field name="domain">[('project_id', '!=', False),('is_approval', '=', '1')]</field>
             <field name="context">{'search_default_groupby_employee':1,}</field>
             <field name="search_view_id" ref="hr_timesheet_line_search"/>
@@ -41,6 +58,23 @@
 
         <record id="timesheet_action_report_by_project" model="ir.actions.act_window">
             <field name="name">By Project</field>
+            <field name="res_model">account.analytic.line</field>
+            <field name="domain">[('project_id', '!=', False),('is_approval', '=', '1'),'|', ('user_id', '=',uid),('approver.user_id', '=', uid)]</field>
+            <field name="context">{'search_default_groupby_project':1,}</field>
+            <field name="search_view_id" ref="hr_timesheet_line_search"/>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Record a new activity
+              </p><p>
+                You can register and track your workings hours by project every
+                day. Every time spent on a project will become a cost and can be re-invoiced to
+                customers if required.
+              </p>
+            </field>
+        </record>
+
+        <record id="timesheet_action_report_by_project2" model="ir.actions.act_window">
+            <field name="name">ALL Project</field>
             <field name="res_model">account.analytic.line</field>
             <field name="domain">[('project_id', '!=', False),('is_approval', '=', '1')]</field>
             <field name="context">{'search_default_groupby_project':1,}</field>
@@ -80,6 +114,23 @@
         <record id="timesheet_action_report_by_task" model="ir.actions.act_window">
             <field name="name">By Task</field>
             <field name="res_model">account.analytic.line</field>
+            <field name="domain">[('project_id', '!=', False),('is_approval', '=', '1'),'|', ('user_id', '=',uid),('approver.user_id', '=', uid)]</field>
+            <field name="context">{'search_default_groupby_task':1,}</field>
+            <field name="search_view_id" ref="hr_timesheet_line_search"/>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Record a new activity
+              </p><p>
+                You can register and track your workings hours by project every
+                day. Every time spent on a project will become a cost and can be re-invoiced to
+                customers if required.
+              </p>
+            </field>
+        </record>
+
+        <record id="timesheet_action_report_by_task2" model="ir.actions.act_window">
+            <field name="name">ALL Task</field>
+            <field name="res_model">account.analytic.line</field>
             <field name="domain">[('project_id', '!=', False),('is_approval', '=', '1')]</field>
             <field name="context">{'search_default_groupby_task':1,}</field>
             <field name="search_view_id" ref="hr_timesheet_line_search"/>
@@ -118,7 +169,6 @@
         <menuitem id="menu_timesheets_reports"
             name="Reporting"
             parent="timesheet_menu_root"
-            groups="hr_timesheet.group_timesheet_approver"
             sequence="99"/>
 
         <menuitem id="menu_timesheets_reports_timesheet"
@@ -130,19 +180,43 @@
         <menuitem id="menu_hr_activity_analysis"
             parent="menu_timesheets_reports_timesheet"
             action="act_hr_timesheet_report"
+            groups="group_timesheet_approver"
             name="By Employee"
             sequence="10"/>
 
         <menuitem id="timesheet_menu_report_timesheet_by_project"
             parent="menu_timesheets_reports_timesheet"
             action="timesheet_action_report_by_project"
+            groups="group_timesheet_approver"
             name="By Project"
             sequence="15"/>
 
         <menuitem id="timesheet_menu_report_timesheet_by_task"
             parent="menu_timesheets_reports_timesheet"
             action="timesheet_action_report_by_task"
+            groups="group_timesheet_approver"
             name="By Task"
+            sequence="20"/>
+
+       <menuitem id="menu_hr_activity_analysis2"
+            parent="menu_timesheets_reports_timesheet"
+            action="act_hr_timesheet_report2"
+             groups="group_timesheet_manager"
+            name="All Employee"
+            sequence="10"/>
+
+        <menuitem id="timesheet_menu_report_timesheet_by_project2"
+            parent="menu_timesheets_reports_timesheet"
+            action="timesheet_action_report_by_project2"
+            groups="group_timesheet_manager"
+            name="All Project"
+            sequence="15"/>
+
+        <menuitem id="timesheet_menu_report_timesheet_by_task2"
+            parent="menu_timesheets_reports_timesheet"
+            action="timesheet_action_report_by_task2"
+            groups="group_timesheet_manager"
+            name="All Task"
             sequence="20"/>
 
     </data>
