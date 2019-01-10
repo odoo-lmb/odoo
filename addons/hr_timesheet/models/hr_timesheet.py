@@ -104,6 +104,8 @@ class AccountAnalyticLine(models.Model):
                     _('一日时间总计不能超过8.'))
 
 
+
+
         sudo_self = self.sudo()  # this creates only one env for all operation that required sudo()
         # (re)compute the amount (depending on unit_amount, employee_id for the cost, and account_id for currency)
 
@@ -129,6 +131,15 @@ class AccountAnalyticLine(models.Model):
                 rst = self.env['account.analytic.line'].search(
                     [('user_id', '=', line.user_id.id), ('date', '=', line.date)])
                 count_amount = 0
+
+    @api.constrains('employee_id')
+    def _check_employee_id(self):
+        for line in self:
+            if self.user_id.id == self.env.user.id:
+                if line.is_approval == 2:
+                    line.is_approval = 0
+
+
 
 
 
