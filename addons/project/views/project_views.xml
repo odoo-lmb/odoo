@@ -128,7 +128,7 @@
                         </div>
                     </div>
                     <notebook>
-                        <page name="settings" string="Settings">
+                        <page name="settings" string="Settings" groups="project.group_project_manager">
                             <group>
                                 <field name="user_id" string="Project Manager"
                                         attrs="{'readonly':[('active','=',False)]}"/>
