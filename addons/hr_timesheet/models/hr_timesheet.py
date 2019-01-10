@@ -139,10 +139,16 @@ class AccountAnalyticLine(models.Model):
     @api.model
     def create(self, values):
         # 判断类型
-        if values.get('timesheet_type') not in [1, 2] and values.get('project_id') != 8:
+        timesheet_type = values.get('timesheet_type')
+        project_id = values.get('project_id')
+        if timesheet_type not in [1, 2] and project_id != 8:
             raise UserError(_('其他类型请选择项目为假期，谢谢'))
-        if values.get('timesheet_type') in [1, 2] and not values.get('name'):
-            raise UserError(_('请填写工作简报，谢谢'))
+
+        if timesheet_type in [1, 2]:
+            if not values.get('name'):
+                raise UserError(_('请填写工作简报，谢谢'))
+            if project_id == 8:
+                raise UserError(_('普通类型请不要选择项目为假期，谢谢'))
 
         # compute employee only for timesheet lines, makes no sense for other lines
         if not values.get('employee_id') and values.get('project_id'):
