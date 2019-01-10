@@ -121,7 +121,7 @@ class AccountAnalyticAccount(models.Model):
             account.credit = data_credit.get(account.id, 0.0)
             account.balance = account.credit - account.debit
 
-    name = fields.Char(string='Analytic Account', index=True, required=True, track_visibility='onchange')
+    name = fields.Char(string='Analytic Account', index=True, required=False, track_visibility='onchange')
     code = fields.Char(string='Reference', index=True, track_visibility='onchange')
     active = fields.Boolean('Active', help="If the active field is set to False, it will allow you to hide the account without removing it.", default=True)
 
@@ -174,7 +174,7 @@ class AccountAnalyticLine(models.Model):
     def _default_user(self):
         return self.env.context.get('user_id', self.env.user.id)
 
-    name = fields.Char('Description', required=True)
+    name = fields.Char('Description', required=False)
     date = fields.Date('Date', required=True, index=True, default=fields.Date.context_today)
     amount = fields.Monetary('Amount', required=True, default=0.0)
     unit_amount = fields.Float('Quantity', default=0.0)
