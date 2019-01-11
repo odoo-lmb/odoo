@@ -180,10 +180,33 @@ class AccountAnalyticLine(models.Model):
 
     @api.multi
     def write(self, values):
-        values = self._timesheet_preprocess(values)
+        holiday_name = "假期"
+        timesheet_type = values.get('timesheet_type') or self.timesheet_type
+
+        if values.get('project_id'):
+            project_name = self.env['project.project'].search([('id', '=', values.get('project_id'))], limit=1).name
+        else:
+            project_name = self.project_id.name
+
+        if values.get('name') is not None:
+            name = values.get('name')
+        else:
+            name = self.name
+        # 如果工时表是普通类型
+        if timesheet_type in [1, 2]:
+            if not name:
+                raise UserError(_('请填写工作简报，谢谢'))
+
+            if project_name == holiday_name:
+                raise UserError(_('普通类型不能选择假期项目，谢谢'))
+        else:
+            if project_name != holiday_name:
+                raise UserError(_('这些类型的项目只能选择假期，谢谢'))
+
         if self.employee_id.user_id.id == self.env.user.id:
             if self.is_approval == 2:
                 values['is_approval'] = 0
+        values = self._timesheet_preprocess(values)
         result = super(AccountAnalyticLine, self).write(values)
         # applied only for timesheet
         self.filtered(lambda t: t.project_id)._timesheet_postprocess(values)
