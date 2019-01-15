@@ -98,10 +98,9 @@
 .hr_timesheet_line_tree table{
       table-layout: fixed;
 }
-
-.hr_timesheet_line_tree {
-       overflow:hidden
-}
+.hr_timesheet_line_tree th:nth-child(1){
+    width: 3%;
+  }
 .hr_timesheet_line_tree th:nth-child(2){
     width: 150px;
   }
