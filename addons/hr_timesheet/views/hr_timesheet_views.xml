@@ -56,12 +56,11 @@
         <record id="timesheet_view_tree_user" model="ir.ui.view">
             <field name="name">account.analytic.line.view.tree.with.user</field>
             <field name="model">account.analytic.line</field>
-            <field name="inherit_id" ref="hr_timesheet_line_tree"/>
+            <field name="inherit_id" ref="hr_timesheet_line_my_tree"/>
             <field name="mode">primary</field>
             <field name="priority">10</field>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='date']" position="after">
-                    <field name="employee_id" required="1" options='{"no_open": True}'/>
                     <field name="user_id" invisible="1"/>
                 </xpath>
             </field>
