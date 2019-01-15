@@ -28,7 +28,7 @@ class AccountAnalyticLine(models.Model):
     approver = fields.Many2one('hr.employee', '审批员',store=True,)
     department_id = fields.Many2one('hr.department', "Department", compute='_compute_department_id', store=True, compute_sudo=True)
     timesheet_type = fields.Selection(
-        [(1, "日常工作"), (2, "调休"), (3, "年假"), (4, "病假"), (5, "婚假"), (6, "产假"), (7, "陪产假"), (8, "其他假期")], string='类型',
+        [(1, "日常工作"), (2, "调休"), (3, "年假"), (4, "病假"), (5, "事假"), (6, "婚假"), (7, "产假"), (8, "陪产假"), (9, "其他假期")], string='类型',
         track_visibility='always',
         copy=False, store=True, default=1)
     is_approval= fields.Selection(
@@ -89,6 +89,12 @@ class AccountAnalyticLine(models.Model):
             if line.unit_amount > 8:
                 raise ValidationError(
                     _('时间不能超过8.'))
+            if line.unit_amount == 0:
+                raise ValidationError(
+                    _('工作时长不能为0'))
+            if isinstance(line.unit_amount, int):
+                raise ValidationError(
+                    _('请填写整数.'))
             rst = self.env['account.analytic.line'].search(
                 [('user_id', '=', line.user_id.id), ('date', '=', line.date)])
             count_amount = 0

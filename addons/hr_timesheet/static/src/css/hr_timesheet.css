@@ -1,14 +1,128 @@
 
 
-.my_custom_class {
-    font-size: 50px;
+.hr_timesheet_line_my_tree table{
+    table-layout: fixed;
+
+}
+.hr_timesheet_line_my_tree th:nth-child(1){
+    width: 3%;
+  }
+.hr_timesheet_line_my_tree th:nth-child(2){
+    width: 5%;
+  }
+.hr_timesheet_line_my_tree th:nth-child(3){
+    width: 150px;
+  }
+.hr_timesheet_line_my_tree th:nth-child(4){
+     width: 7%;
+  }
+.hr_timesheet_line_my_tree th:nth-child(5){
+     width: 5%;
+  }
+.hr_timesheet_line_my_tree th:nth-child(6){
+   width: 11%;
+  }
+.hr_timesheet_line_my_tree th:nth-child(7){
+   width: 11%;
+  }
+.hr_timesheet_line_my_tree th:nth-child(8){
+    width: 39%;
+  }
+.hr_timesheet_line_my_tree td:nth-child(8):hover {
+        white-space: pre-wrap;
+        width: 100%;
+    }
+.hr_timesheet_line_my_tree td {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.hr_timesheet_line_my_tree th:nth-child(9){
+    width: 5%;
+  }
+.hr_timesheet_line_my_tree th:nth-child(10){
+    width: 5%;
+  }
 
 
+
+.hr_timesheet_line_my_new_tree table{
+      table-layout: fixed;
 }
-.constant_width{
-    width: 6%;
+.hr_timesheet_line_my_new_tree th:nth-child(1){
+    width: 3%;
+  }
+.hr_timesheet_line_my_new_tree th:nth-child(2){
+    width: 150px;
+  }
+.hr_timesheet_line_my_new_tree th:nth-child(3){
+     width: 7%;
+  }
+.hr_timesheet_line_my_new_tree th:nth-child(4){
+     width: 5%;
+  }
+.hr_timesheet_line_my_new_tree th:nth-child(5){
+   width: 11%;
+  }
+.hr_timesheet_line_my_new_tree th:nth-child(6){
+   width: 11%;
+  }
+.hr_timesheet_line_my_new_tree th:nth-child(7){
+    width: 38%;
+  }
+.hr_timesheet_line_my_new_tree th:nth-child(8){
+    width: 5%;
+  }
+.hr_timesheet_line_my_new_tree th:nth-child(9){
+    width: 5%;
+  }
+.hr_timesheet_line_my_new_tree td:nth-child(7) {
+    width: 38%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
-.max_width{
-    min-width:20%;
-    max-width:30%;
+.hr_timesheet_line_my_new_tree td:nth-child(7):hover {
+        white-space: pre-wrap;
+        width: 100%;
+    }
+.hr_timesheet_line_my_new_tree td:nth-child(7) {
+    width: 30%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
+
+
+.hr_timesheet_line_tree {
+       overflow:hidden
+}
+.hr_timesheet_line_tree th:nth-child(2){
+    width: 150px;
+  }
+.hr_timesheet_line_tree th:nth-child(3){
+     width: 7%;
+  }
+.hr_timesheet_line_tree th:nth-child(4){
+     width: 5%;
+  }
+.hr_timesheet_line_tree th:nth-child(5){
+   width: 11%;
+  }
+.hr_timesheet_line_tree th:nth-child(6){
+   width: 11%;
+  }
+.hr_timesheet_line_tree th:nth-child(7){
+    width: 38%;
+   white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+.hr_timesheet_line_tree th:nth-child(8){
+    width: 5%;
+  }
+.hr_timesheet_line_tree th:nth-child(9){
+    width: 5%;
+  }
+
+
