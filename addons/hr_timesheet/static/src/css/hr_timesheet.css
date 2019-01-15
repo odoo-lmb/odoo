@@ -17,7 +17,7 @@
      width: 3%;
   }
 .hr_timesheet_line_my_tree th:nth-child(5){
-     width: 5%;
+     width: 4%;
   }
 .hr_timesheet_line_my_tree th:nth-child(6){
    width: 7%;
@@ -59,7 +59,7 @@
      width: 3%;
   }
 .hr_timesheet_line_my_new_tree th:nth-child(4){
-     width: 5%;
+     width: 4%;
   }
 .hr_timesheet_line_my_new_tree th:nth-child(5){
    width: 7%;
@@ -108,7 +108,7 @@
      width: 3%;
   }
 .hr_timesheet_line_tree th:nth-child(4){
-     width: 7%;
+     width: 4%;
   }
 .hr_timesheet_line_tree th:nth-child(5){
    width: 7%;
@@ -130,10 +130,10 @@
         width: 50%;
     }
 .hr_timesheet_line_tree th:nth-child(8){
-    width: 7%;
+    width: 5%;
   }
 .hr_timesheet_line_tree th:nth-child(9){
-    width: 7%;
+    width: 5%;
   }
 .hr_timesheet_line_tree td {
     white-space: nowrap;
