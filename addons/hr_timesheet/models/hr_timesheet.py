@@ -159,7 +159,7 @@ class AccountAnalyticLine(models.Model):
         project_id = values.get('project_id')
         project_name = self.env['project.project'].search([('id', '=', project_id)], limit=1).name
         if timesheet_type not in [1, 2] and project_name != holiday_name:
-            raise UserError(_('其他类型请选择项目为假期，谢谢'))
+            raise UserError(_('年假、病假、事假等类型，项目请选择假期'))
 
         if timesheet_type in [1, 2]:
             if not values.get('name'):
@@ -207,7 +207,7 @@ class AccountAnalyticLine(models.Model):
                 raise UserError(_('日常工作和调休请不要选择项目为假期，谢谢'))
         else:
             if project_name != holiday_name:
-                raise UserError(_('这些类型的项目只能选择假期，谢谢'))
+                raise UserError(_('年假、病假、事假等类型，项目请选择假期'))
 
         if self.employee_id.user_id.id == self.env.user.id:
             if self.is_approval == 2:
