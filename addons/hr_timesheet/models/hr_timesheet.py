@@ -88,13 +88,13 @@ class AccountAnalyticLine(models.Model):
                 line.employee_id.user_id, line.date, line.unit_amount))
             if line.unit_amount > 8:
                 raise ValidationError(
-                    _('时间不能超过8.'))
+                    _('持续时间不能超过8.'))
             if line.unit_amount == 0:
                 raise ValidationError(
-                    _('工作时长不能为0'))
+                    _('持续时间不能为0'))
             if int(line.unit_amount) != line.unit_amount:
                 raise ValidationError(
-                    _('工作时长请填写整数.'))
+                    _('持续时间请填写整数.'))
             rst = self.env['account.analytic.line'].search(
                 [('user_id', '=', line.user_id.id), ('date', '=', line.date)])
             count_amount = 0
@@ -107,7 +107,7 @@ class AccountAnalyticLine(models.Model):
                     count_amount += temp.unit_amount
             if count_amount > 8:
                 raise ValidationError(
-                    _('一日时间总计不能超过8.'))
+                    _('一日持续时间总计不能超过8.'))
 
 
 
