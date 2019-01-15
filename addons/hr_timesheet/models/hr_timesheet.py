@@ -92,9 +92,9 @@ class AccountAnalyticLine(models.Model):
             if line.unit_amount == 0:
                 raise ValidationError(
                     _('工作时长不能为0'))
-            if isinstance(line.unit_amount, int):
+            if not isinstance(line.unit_amount, int):
                 raise ValidationError(
-                    _('请填写整数.'))
+                    _('工作时长请填写整数.'))
             rst = self.env['account.analytic.line'].search(
                 [('user_id', '=', line.user_id.id), ('date', '=', line.date)])
             count_amount = 0
