@@ -5,7 +5,7 @@
 
 }
 .hr_timesheet_line_my_tree th:nth-child(1){
-    width: 3%;
+    width: 2%;
   }
 .hr_timesheet_line_my_tree th:nth-child(2){
     width: 5%;
@@ -14,19 +14,19 @@
     width: 150px;
   }
 .hr_timesheet_line_my_tree th:nth-child(4){
-     width: 7%;
+     width: 5%;
   }
 .hr_timesheet_line_my_tree th:nth-child(5){
      width: 5%;
   }
 .hr_timesheet_line_my_tree th:nth-child(6){
-   width: 11%;
+   width: 7%;
   }
 .hr_timesheet_line_my_tree th:nth-child(7){
-   width: 11%;
+   width: 7%;
   }
 .hr_timesheet_line_my_tree th:nth-child(8){
-    width: 39%;
+    width: 50%;
   }
 .hr_timesheet_line_my_tree td:nth-child(8):hover {
         white-space: pre-wrap;
@@ -50,29 +50,29 @@
       table-layout: fixed;
 }
 .hr_timesheet_line_my_new_tree th:nth-child(1){
-    width: 3%;
+    width: 2%;
   }
 .hr_timesheet_line_my_new_tree th:nth-child(2){
     width: 150px;
   }
 .hr_timesheet_line_my_new_tree th:nth-child(3){
-     width: 7%;
+     width: 5%;
   }
 .hr_timesheet_line_my_new_tree th:nth-child(4){
      width: 5%;
   }
 .hr_timesheet_line_my_new_tree th:nth-child(5){
-   width: 11%;
+   width: 7%;
   }
 .hr_timesheet_line_my_new_tree th:nth-child(6){
-   width: 11%;
+   width: 7%;
   }
 .hr_timesheet_line_my_new_tree th:nth-child(7){
-    width: 38%;
+    width: 50%;
   }
 
 .hr_timesheet_line_my_new_tree td:nth-child(7) {
-    width: 38%;
+    width: 50%;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -99,35 +99,35 @@
       table-layout: fixed;
 }
 .hr_timesheet_line_tree th:nth-child(1){
-    width: 3%;
+    width: 2%;
   }
 .hr_timesheet_line_tree th:nth-child(2){
     width: 150px;
   }
 .hr_timesheet_line_tree th:nth-child(3){
-     width: 7%;
+     width: 5%;
   }
 .hr_timesheet_line_tree th:nth-child(4){
      width: 7%;
   }
 .hr_timesheet_line_tree th:nth-child(5){
-   width: 11%;
+   width: 7%;
   }
 .hr_timesheet_line_tree th:nth-child(6){
-   width: 11%;
+   width: 7%;
   }
 .hr_timesheet_line_tree th:nth-child(7){
-    width: 38%;
+    width: 50%;
   }
 .hr_timesheet_line_tree td:nth-child(7) {
-    width: 38%;
+    width: 50%;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
 }
 .hr_timesheet_line_tree td:nth-child(7):hover {
         white-space: pre-wrap;
-        width: 38%;
+        width: 50%;
     }
 .hr_timesheet_line_tree th:nth-child(8){
     width: 7%;

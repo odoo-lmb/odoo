@@ -204,7 +204,7 @@ class AccountAnalyticLine(models.Model):
                 raise UserError(_('请填写工作简报，谢谢'))
 
             if project_name == holiday_name:
-                raise UserError(_('普通类型不能选择假期项目，谢谢'))
+                raise UserError(_('日常工作和调休请不要选择项目为假期，谢谢'))
         else:
             if project_name != holiday_name:
                 raise UserError(_('这些类型的项目只能选择假期，谢谢'))
