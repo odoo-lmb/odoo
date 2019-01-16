@@ -282,6 +282,14 @@ class Employee(models.Model):
     # misc
     notes = fields.Text('Notes')
     color = fields.Integer('Color Index', default=0)
+    first_working_day1 = fields.Date(
+        string="入职日期1")
+    first_working_day2 = fields.Date(
+        string="入职日期2")
+    last_working_day1 = fields.Date(
+        string="离职日期1")
+    last_working_day2 = fields.Date(
+        string="离职日期2")
 
 
     @api.multi
