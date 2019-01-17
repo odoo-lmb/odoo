@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from odoo import http
 
-class SpecialDate(http.Controller):
-    @http.route('/special_date/special_date/', auth='public')
-    def index(self, **kw):
-        return "Hello, world date"
+# class SpecialDate(http.Controller):
+#     @http.route('/special_date/special_date/', auth='public')
+#     def index(self, **kw):
+#         return "Hello, world date"
 
 #     @http.route('/special_date/special_date/objects/', auth='public')
 #     def list(self, **kw):
