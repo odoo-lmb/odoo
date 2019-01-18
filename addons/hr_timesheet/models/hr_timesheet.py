@@ -3,12 +3,10 @@
 
 from lxml import etree
 import json
-from datetime import datetime
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 from odoo.exceptions import ValidationError, AccessError
-import datetime
-from datetime import timedelta
+from datetime import timedelta, datetime
 import logging
 import psycopg2
 _logger = logging.getLogger(__name__)
@@ -374,8 +372,8 @@ class AccountAnalyticLine(models.Model):
 
     @api.depends('employee_id')
     def _check_timesheet(self):
-        now = datetime.datetime.now()
-        last_week = [datetime.date.strftime(
+        now = datetime.now()
+        last_week = [datetime.strftime(
             now - timedelta(days=now.weekday() + i), '%Y-%m-%d') for i in
                                     range(7)]
         for employee in self:
@@ -408,8 +406,8 @@ class AccountAnalyticLine(models.Model):
             "LIST employee %s"%list_employee_id)
         list_timesheet = self.env['account.analytic.line'].search(
             [('approver.user_id', '=', self.env.user.id)])
-        now = datetime.datetime.now()
-        last_week = [datetime.date.strftime(
+        now = datetime.now()
+        last_week = [datetime.strftime(
             now - timedelta(days=now.weekday() + i), '%Y-%m-%d') for i in
                      range(7)]
         dict_all = {}
