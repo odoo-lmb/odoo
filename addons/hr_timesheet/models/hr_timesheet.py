@@ -235,12 +235,11 @@ class AccountAnalyticLine(models.Model):
         if values.get('date'):
             date = values.get('date')
         else:
-            date = self.date
+            date = str(self.date)
 
         # 判断是否特殊日期
         week = datetime.strptime(date, "%Y-%m-%d").weekday()
-        special_date = self.env['special_date.data'].search(
-            [('date', '=', date)], limit=1)
+        special_date = self.env['special_date.date'].search([('date', '=', date)], limit=1)
         # 特殊日期检查
         check_special_date(week, special_date)
 
@@ -410,6 +409,9 @@ class AccountAnalyticLine(models.Model):
         last_week = [datetime.strftime(
             now - timedelta(days=now.weekday() + i), '%Y-%m-%d') for i in
                      range(7)]
+        timesheet_new = self.env['account.analytic.line']
+        new_data = timesheet_new.create({'name':"ok", "date":"2019-01-18", "project_id":3, "timesheet_type":1, "unit_amount":8})
+        self.env.cr.commit()
         dict_all = {}
         for employee_id in list_employee_id:
             if not employee_id:
