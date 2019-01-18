@@ -18,17 +18,6 @@ NEED_WORK = 1
 NOT_WORK = 2
 SPECIAL_DATE_ERROR = "这一天是非工作日，暂不需要填写工时"
 
-def check_special_date(week, special_date):
-    if week in CHECK_WEEKS:
-        # 是特殊日期要上班
-        if special_date.id and special_date.options == NEED_WORK:
-            pass
-        else:
-            raise UserError(_('这一天是非工作日，暂不需要填写工时'))
-    else:  # 如果是周一至周五的特殊日期并且指定不需要上班
-        if special_date.id and special_date.options == NOT_WORK:
-            raise UserError(_('这一天是非工作日，暂不需要填写工时'))
-
 
 class AccountAnalyticLine(models.Model):
     _inherit = 'account.analytic.line'
@@ -179,23 +168,9 @@ class AccountAnalyticLine(models.Model):
     @api.model
     def create(self, values):
         # 判断类型
-        timesheet_type = values.get('timesheet_type')
-        project_id = values.get('project_id')
-        date = values.get('date')
-        project_name = self.env['project.project'].search([('id', '=', project_id)], limit=1).name
-        # 判断是否特殊日期
-        week = datetime.strptime(date, "%Y-%m-%d").weekday()
-        special_date = self.env['special_date.date'].search([('date', '=', date)], limit=1)
-        # 特殊日期检查
-        check_special_date(week, special_date)
-        if timesheet_type not in [1, 2] and project_name != HOLIDAY_NAME:
-            raise UserError(_('年假、病假、事假等类型，项目请选择假期'))
-
-        if timesheet_type in [1, 2]:
-            if not values.get('name'):
-                raise UserError(_('请填写工作简报，谢谢'))
-            if project_name == HOLIDAY_NAME:
-                raise UserError(_('日常工作和调休请不要选择项目为假期，谢谢'))
+        self._check_timesheet_type(values)
+        self._check_special_date(values)
+        self._check_project_task(values)
 
         # compute employee only for timesheet lines, makes no sense for other
         # lines
@@ -219,40 +194,9 @@ class AccountAnalyticLine(models.Model):
 
     @api.multi
     def write(self, values):
-        holiday_name = "假期"
-        timesheet_type = values.get('timesheet_type') or self.timesheet_type
-
-        if values.get('project_id'):
-            project_name = self.env['project.project'].search([('id', '=', values.get('project_id'))], limit=1).name
-        else:
-            project_name = self.project_id.name
-
-        if values.get('name') is not None:
-            name = values.get('name')
-        else:
-            name = self.name
-
-        if values.get('date'):
-            date = values.get('date')
-        else:
-            date = str(self.date)
-
-        # 判断是否特殊日期
-        week = datetime.strptime(date, "%Y-%m-%d").weekday()
-        special_date = self.env['special_date.date'].search([('date', '=', date)], limit=1)
-        # 特殊日期检查
-        check_special_date(week, special_date)
-
-        # 如果工时表是普通类型
-        if timesheet_type in [1, 2]:
-            if not name:
-                raise UserError(_('请填写工作简报，谢谢'))
-
-            if project_name == holiday_name:
-                raise UserError(_('日常工作和调休请不要选择项目为假期，谢谢'))
-        else:
-            if project_name != holiday_name:
-                raise UserError(_('年假、病假、事假等类型，项目请选择假期'))
+        self._check_timesheet_type(values)
+        self._check_special_date(values)
+        self._check_project_task(values)
 
         if self.employee_id.user_id.id == self.env.user.id:
             if self.is_approval == 2:
@@ -368,6 +312,70 @@ class AccountAnalyticLine(models.Model):
                     'amount': amount_converted,
                 })
         return result
+
+    def _check_timesheet_type(self, values):
+        """
+        检查类型规则
+        """
+        timesheet_type = values.get('timesheet_type') or self.timesheet_type
+        if values.get('project_id'):
+            project_name = self.env['project.project'].search([('id', '=', values.get('project_id'))], limit=1).name
+        else:
+            project_name = self.project_id.name
+
+        if values.get('name') is not None:
+            name = values.get('name')
+        else:
+            name = self.name
+
+        if timesheet_type not in [1, 2] and project_name != HOLIDAY_NAME:
+            raise UserError(_('年假、病假、事假等类型，项目请选择假期'))
+
+        if timesheet_type in [1, 2]:
+            if not name:
+                raise UserError(_('请填写工作简报，谢谢'))
+            if project_name == HOLIDAY_NAME:
+                raise UserError(_('日常工作和调休请不要选择项目为假期，谢谢'))
+
+    def _check_special_date(self, values):
+        """
+        检查特殊日期规则
+        """
+        if values.get('date'):
+            date = values.get('date')
+        else:
+            date = str(self.date)
+        # 判断是否特殊日期
+        week = datetime.strptime(date, "%Y-%m-%d").weekday()
+        special_date = self.env['special_date.date'].search([('date', '=', date)], limit=1)
+        if week in CHECK_WEEKS:
+            # 是特殊日期要上班
+            if special_date.id and special_date.options == NEED_WORK:
+                pass
+            else:
+                raise UserError(_('这一天是非工作日，暂不需要填写工时'))
+        else:  # 如果是周一至周五的特殊日期并且指定不需要上班
+            if special_date.id and special_date.options == NOT_WORK:
+                raise UserError(_('这一天是非工作日，暂不需要填写工时'))
+
+    def _check_project_task(self, values):
+        """
+        检查项目子任务
+        """
+        project_id = values.get('project_id')
+        if project_id is None:
+            project_id = self.project_id.id
+        task_id = values.get('task_id')
+        if task_id is None:
+            task_id = self.task_id.id
+
+        list_task = self.env['project.task'].search([('project_id', '=', project_id)])
+        task_ids = []
+        for task in list_task:
+            task_ids.append(task.id)
+        if task_ids and task_id not in task_ids:
+            raise UserError(_('此项目有子任务，请选择对应子任务，谢谢'))
+
 
     @api.depends('employee_id')
     def _check_timesheet(self):
