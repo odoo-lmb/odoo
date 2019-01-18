@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--<record id="act_hr_timesheet_sanity_check" model="ir.actions.act_window" >-->
+            <!--<field name="name">sanity_check</field>-->
+            <!--<field name="res_model">account.analytic.line</field>-->
+            <!--<field name="view_mode">tree</field>-->
+            <!--<field name="domain">[('project_id', '!=', False),-->
+                <!--('date',"&gt;=",(context_today() - datetime.timedelta(days=context_today().weekday() + 7)).strftime('%Y-%m-%d')),-->
+                <!--('date',"&lt;=",(context_today() - datetime.timedelta(days=context_today().weekday() + 1)).strftime('%Y-%m-%d'))]</field>-->
+             <!--<field name="context">{-->
+                <!--"search_default_week":1,-->
+            <!--}</field>-->
+            <!--<field name="search_view_id" ref="hr_timesheet_line_search"/>-->
+            <!--<field name="help" type="html">-->
+              <!--<p class="o_view_nocontent_smiling_face">-->
+                <!--Record a new activity-->
+              <!--</p><p>-->
+                <!--You can register and track your workings hours by project every-->
+                <!--day. Every time spent on a project will become a cost and can be re-invoiced to-->
+                <!--customers if required.-->
+              <!--</p>-->
+            <!--</field>-->
+        <!--</record>-->
+
+          <!--<record id="hr_timesheet_line_sanity_check_tree" model="ir.ui.view">-->
+                    <!--<field name="name">et</field>-->
+                    <!--<field name="model">account.analytic.line</field>-->
+                    <!--<field name="arch" type="xml">-->
+                        <!--<tree editable="top" string="Timesheet Activities" import="false" >-->
+                             <!--<field name="employee_id" readonly="1" />-->
+                                <!--<field name="date" readonly="1" />-->
+                                 <!--<field name="unit_amount" widget="timesheet_uom" readonly="1"  />-->
+                                  <!--<field name="timesheet_type" readonly="1" />-->
+                                <!--<field name="project_id" readonly="1" required="1" />-->
+                                <!--<field name="task_id" readonly="1" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" />-->
+                                 <!--<field name="approver" readonly="1" />-->
+                                <!--<field name="is_approval" />-->
+                                <!--<field name="check_timesheet"/>-->
+                        <!--</tree>-->
+                    <!--</field>-->
+                <!--</record>-->
+
+
+        <!--<record model="ir.actions.act_window.view" id="act_hr_timesheet_sanity_check_pivot">-->
+            <!--<field name="sequence" eval="5"/>-->
+            <!--<field name="view_mode">pivot</field>-->
+            <!--<field name="view_id" ref="hr_timesheet.view_hr_timesheet_line_pivot"/>-->
+            <!--<field name="act_window_id" ref="act_hr_timesheet_sanity_check"/>-->
+        <!--</record>-->
+
+        <!--<record model="ir.actions.act_window.view" id="act_hr_timesheet_sanity_check_tree">-->
+            <!--<field name="sequence" eval="3"/>-->
+            <!--<field name="view_mode">tree</field>-->
+            <!--<field name="view_id" ref="hr_timesheet_line_sanity_check_tree"/>-->
+            <!--<field name="act_window_id" ref="act_hr_timesheet_sanity_check"/>-->
+        <!--</record>-->
+
+        <record model="ir.actions.server" id="action_test">
+            <field name="name">action_test</field>
+             <field name="model_id" ref="analytic.model_account_analytic_line"/>
+              <field name="state">code</field>
+    <field name="code">
+        model.do_something()
+    </field>
+            <!--<field name="function">do_something</field>-->
+            <!--<field name="args">([])</field>-->
+        <!--<field name="model">account.analytic.line</field>-->
+            <!--<field name="function">do_something</field>-->
+        </record>
+
+
+
+        <menuitem id="menu_timesheets_sanity_check"
+            name="Sanity_check"
+            parent="timesheet_menu_root"
+            sequence="79"/>
+
+        <menuitem id="menu_timesheets_sanity_check_timesheet"
+            name="Sanity_check"
+            parent="menu_timesheets_sanity_check"
+            groups="hr_timesheet.group_timesheet_approver"
+            sequence="10"/>
+
+      <menuitem id="timesheet_menu_sanity_check_timesheet_last_month"
+        parent="menu_timesheets_sanity_check_timesheet"
+        action="action_test"
+        groups="group_timesheet_manager"
+        name="上周分析"
+        sequence="15"/>
+        <!--<menuitem id="timesheet_menu_sanity_check_timesheet_last_week"-->
+        <!--parent="menu_timesheets_sanity_check_timesheet"-->
+        <!--action="act_hr_timesheet_sanity_check"-->
+        <!--groups="group_timesheet_manager"-->
+        <!--name="上周分析"-->
+        <!--sequence="15"/>-->
+
+    </data>
+</odoo>

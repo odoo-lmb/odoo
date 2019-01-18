@@ -7,6 +7,7 @@ from odoo import api, fields, models
 from odoo import tools, _
 from odoo.exceptions import ValidationError, AccessError
 from odoo.modules.module import get_module_resource
+import datetime
 
 _logger = logging.getLogger(__name__)
 
@@ -291,6 +292,25 @@ class Employee(models.Model):
     last_working_day2 = fields.Date(
         string="离职日期2")
 
+    check_timesheet = fields.Char('check timesheet',compute='_check_timesheet', readonly=True, store=False)
+
+
+
+    def _check_timesheet(self):
+        now = datetime.datetime.now()
+        # last_week_start = datetime.date.strftime(now - timedelta(days=now.weekday() + 7), '%Y-%m-%d')
+        # last_week_end = datetime.date.strftime(now - timedelta(days=now.weekday() + 1), '%Y-%m-%d')
+
+        for employee in self:
+            rst = self.env['account.analytic.line'].search(
+                [('user_id', '=', employee.user_id.id)])
+            count_amount = 0
+            for temp in rst:
+                count_amount += temp.unit_amount
+            if count_amount < 40:
+                employee.check_timesheet = "填写时长不够"
+            else:
+                employee.check_timesheet = ""
 
     @api.multi
     def _compute_attachment_number(self):
