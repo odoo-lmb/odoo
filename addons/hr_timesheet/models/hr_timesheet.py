@@ -6,7 +6,7 @@ import json
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 from odoo.exceptions import ValidationError, AccessError
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime,date
 import logging
 import psycopg2
 _logger = logging.getLogger(__name__)
@@ -55,7 +55,7 @@ class AccountAnalyticLine(models.Model):
 
     is_myself = fields.Boolean(compute='_compute_myself',
                                string="is USER self",)
-    check_timesheet = fields.Char(
+    sanity_fail_reason = fields.Char(
         'check timesheet',
         compute='_check_timesheet',
         readonly=True,
@@ -168,7 +168,7 @@ class AccountAnalyticLine(models.Model):
     @api.model
     def create(self, values):
         # 判断类型
-        self._check_timesheet_type(values)
+        self._sanity_fail_reason_type(values)
         self._check_special_date(values)
         self._check_project_task(values)
 
@@ -194,7 +194,7 @@ class AccountAnalyticLine(models.Model):
 
     @api.multi
     def write(self, values):
-        self._check_timesheet_type(values)
+        self.check_timesheet_sanity_fail_reason_type(values)
         self._check_special_date(values)
         self._check_project_task(values)
 
@@ -313,7 +313,7 @@ class AccountAnalyticLine(models.Model):
                 })
         return result
 
-    def _check_timesheet_type(self, values):
+    def _sanity_fail_reason_type(self, values):
         """
         检查类型规则
         """
@@ -384,51 +384,94 @@ class AccountAnalyticLine(models.Model):
             now - timedelta(days=now.weekday() + i), '%Y-%m-%d') for i in
                                     range(7)]
         for timesheet in self:
-            timesheet.check_timesheet = ""
+            timesheet.sanity_fail_reason = ""
             rst = self.env['account.analytic.line'].search(
                 [('user_id', '=', timesheet.user_id.id),('date','=',timesheet.date)])
             count_amount = 0
             for temp in rst:
                 count_amount += temp.unit_amount
-            if not timesheet.is_faker_data:
+            if not timesheet.is_fake_data:
                 if count_amount < 8:
-                    timesheet.check_timesheet = "当日填写时长不够"
+                    timesheet.sanity_fail_reason = "当日填写时长不够"
                 if int(timesheet.unit_amount) != timesheet.unit_amount:
-                    timesheet.check_timesheet += " 该工时的时长为非整数"
+                    timesheet.sanity_fail_reason += " 该工时的时长为非整数"
                 if timesheet.is_approval != 1:
-                    timesheet.check_timesheet += " 该工时处于未通过状态"
+                    timesheet.sanity_fail_reason += " 该工时处于未通过状态"
+                if timesheet.project_id:
+                    list_task = self.env['project.task'].search(
+                        [('project_id', '=', timesheet.project_id.id)])
+                    list_task_id = [task.id for task in list_task]
+                    if list_task and timesheet.task_id.id not in list_task_id:
+                        timesheet.sanity_fail_reason += " 请选择正确的任务"
+                check_date = self.env['special_date.date'].search(
+                    [('date', '=', timesheet.date)], limit=1)
+                if check_date.options == NOT_WORK:
+                    timesheet.sanity_fail_reason += '这一天是非工作日，暂不需要填写工时'
+            else:
+                timesheet.sanity_fail_reason += '当日未填写工时'
+
 
 
 
 
     def check_last_week(self):
-        self.update_db_data_last_week()
+        self.update_db_data()
         return True
 
 
+    def check_last_month(self):
+        self.update_db_data('last_month')
+        return True
 
 
-
-
-    def update_db_data_last_week(self):
+    def update_db_data(self,flag="last_week"):
         list_employee = self.env['hr.employee'].search(
             [('parent_id.user_id', '=', self.env.user.id)])
         list_timesheet = self.env['account.analytic.line'].search(
             [('approver.user_id', '=', self.env.user.id)])
         now = datetime.now()
-        last_week = [datetime.strftime(
-            now - timedelta(days=now.weekday() + i), '%Y-%m-%d') for i in
-                     range(7)]
+        # 取需要工作的时间
+        if flag=='last_week':
+            last_week = [
+                now - timedelta(days=now.weekday() + i) for i in
+                         range(7)]
+            list_date = last_week
+
+        else:
+            last_month_last_day = date(now.year, now.month, 1) - timedelta(days=1)
+            last_month_first_day=date(last_month_last_day.year, last_month_last_day.month, 1)
+            last_month=[last_month_first_day + timedelta(days=i) for i in
+                         range((last_month_last_day-last_month_first_day).days)]
+            list_date = last_month
+
+        weekday = [i for i in list_date if i.isoweekday() <6] # 所有工作日
+        weekend = [i for i in list_date if i.isoweekday() > 5] # 所有周末
+
+        list_weekday = [str(date.strftime(temp_date,'%Y-%m-%d')) for temp_date in weekday]
+        list_weekend = [str(date.strftime(temp_date, '%Y-%m-%d')) for temp_date in
+                        weekend]
+        # 取需要工作的特殊周末
+        db_special_workday = self.env['special_date.date'].search(
+            [('date', 'in', list_weekend),('options','=',NEED_WORK)])
+        list_special_workday = [str(day.date) for day in db_special_workday]
+        # 取不需要工作的特殊工作日
+        db_special_unworkday = self.env['special_date.date'].search(
+            [('date', 'in',  list_weekday), ('options', '=',  NOT_WORK)])
+        list_special_unworkday = [str(day.date) for day in db_special_unworkday]
+        # 算出所用需要工作的日子
+        all_work_day = list((set(list_weekday)-set(list_special_unworkday)).union(set(list_special_workday)))
         # 给每个用户每一天都制造一个伪数据
         dict_all = {}
-        dict_employee ={}
+        dict_employee ={}  # 存放每个员工的uid
+        dict_approver = {} # 存放每个员工的审批员的uid
         for employee in list_employee:
             if not employee.user_id.id:
                 continue
             if not dict_all.get(employee.user_id.id):
                 dict_all[employee.user_id.id] = {}
                 dict_employee[employee.user_id.id]=employee.id
-            for str_date in last_week[:5]:
+                dict_approver[employee.user_id.id]=employee.approver.id
+            for str_date in all_work_day:
                 dict_all[employee.user_id.id][str_date] = 1
         # 从所有的伪造数据中删除已有的真数据
         for timesheet in list_timesheet:
@@ -451,7 +494,7 @@ class AccountAnalyticLine(models.Model):
                 values.append(
                     "('%s','%s','%s', '%s','%s','%s',1,  '%s',1,True)" % (
                         employee_uid, employee_uid, dict_employee[employee_uid],
-                        my_employee_id, project.id, str_date, account_id))
+                        dict_approver[employee_uid], project.id, str_date, account_id))
         if values:
             self.batch_insert('account_analytic_line',insert_field,values)
 
