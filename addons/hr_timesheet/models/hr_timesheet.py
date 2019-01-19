@@ -383,91 +383,84 @@ class AccountAnalyticLine(models.Model):
         last_week = [datetime.strftime(
             now - timedelta(days=now.weekday() + i), '%Y-%m-%d') for i in
                                     range(7)]
-        for employee in self:
-            employee.check_timesheet = ""
+        for timesheet in self:
+            timesheet.check_timesheet = ""
             rst = self.env['account.analytic.line'].search(
-                [('user_id', '=', employee.user_id.id),('date','in',last_week)])
+                [('user_id', '=', timesheet.user_id.id),('date','=',timesheet.date)])
             count_amount = 0
             for temp in rst:
                 count_amount += temp.unit_amount
-            if count_amount < 40:
-                employee.check_timesheet = "该周填写时长不够"
-
-    @api.model
-    def do_something(self):
-        _logger.info(
-            "ok")
-        self.update_db_data()
-
+            if not timesheet.is_faker_data:
+                if count_amount < 8:
+                    timesheet.check_timesheet = "当日填写时长不够"
+                if int(timesheet.unit_amount) != timesheet.unit_amount:
+                    timesheet.check_timesheet += " 该工时的时长为非整数"
+                if timesheet.is_approval != 1:
+                    timesheet.check_timesheet += " 该工时处于未通过状态"
 
 
-    def update_db_data(self):
-        _logger.info(
-            "sql")
+
+
+    def check_last_week(self):
+        self.update_db_data_last_week()
+        return True
+
+
+
+
+
+
+    def update_db_data_last_week(self):
         list_employee = self.env['hr.employee'].search(
             [('parent_id.user_id', '=', self.env.user.id)])
-        # rst = self.env['account.analytic.line'].search(
-        #     [('user_id', '=', employee.user_id.id), ('date', 'in', last_week)])
-        list_employee_id = [employee.user_id.id for employee in list_employee]
-        _logger.info(
-            "LIST employee %s"%list_employee_id)
         list_timesheet = self.env['account.analytic.line'].search(
             [('approver.user_id', '=', self.env.user.id)])
         now = datetime.now()
         last_week = [datetime.strftime(
             now - timedelta(days=now.weekday() + i), '%Y-%m-%d') for i in
                      range(7)]
-        timesheet_new = self.env['account.analytic.line']
-        new_data = timesheet_new.create({'name':"ok", "date":"2019-01-18", "project_id":3, "timesheet_type":1, "unit_amount":8})
-        self.env.cr.commit()
+        # 给每个用户每一天都制造一个伪数据
         dict_all = {}
-        for employee_id in list_employee_id:
-            if not employee_id:
+        dict_employee ={}
+        for employee in list_employee:
+            if not employee.user_id.id:
                 continue
-            if not dict_all.get(employee_id):
-                dict_all[employee_id] = {}
+            if not dict_all.get(employee.user_id.id):
+                dict_all[employee.user_id.id] = {}
+                dict_employee[employee.user_id.id]=employee.id
             for str_date in last_week[:5]:
-                dict_all[employee_id][str_date] = 1
-
+                dict_all[employee.user_id.id][str_date] = 1
+        # 从所有的伪造数据中删除已有的真数据
         for timesheet in list_timesheet:
             if not dict_all.get(timesheet.user_id.id):
                 continue
-            dict_all[timesheet.user_id.id].pop(timesheet.date,None)
+            dict_all[timesheet.user_id.id].pop(str(timesheet.date),None)
+        # 对应的项目字段
+        project = self.env['project.project'].search(
+            [('analytic_account_id.id', '!=', 0)],limit=1)
+        account_id = project.analytic_account_id.id
+        my_employee_id = self.env['hr.employee'].search(
+            [('user_id', '=', self.env.user.id)], limit=1).id
+        # 要插入的字段
+        insert_field = ["user_id", "create_uid", "employee_id", "approver",
+                        "project_id", "date","amount","account_id","company_id","is_fake_data"]
+        # 要插入的值
+        values = []
+        for employee_uid in dict_all:
+            for str_date in dict_all[employee_uid]:
+                values.append(
+                    "('%s','%s','%s', '%s','%s','%s',1,  '%s',1,True)" % (
+                        employee_uid, employee_uid, dict_employee[employee_uid],
+                        my_employee_id, project.id, str_date, account_id))
+        if values:
+            self.batch_insert('account_analytic_line',insert_field,values)
 
-        _logger.info(
-            "ALL DICT %s" % dict_all)
-
-
-
-
-
-
-    # @api.depends('employee_id')
-    # def _compute_last_week_start(self):
-    #     now = datetime.datetime.now()
-    #     for employee in self:
-    #         employee.last_week_start = datetime.date.strftime(
-    #             now - timedelta(days=now.weekday() + 7), '%Y-%m-%d')
-    #
-    # @api.depends('employee_id')
-    # def _compute_last_week_end(self):
-    #     now = datetime.datetime.now()
-    #     for employee in self:
-    #         employee.last_week_end = datetime.date.strftime(
-    #             now - timedelta(days=now.weekday() + 1), '%Y-%m-%d')
-
-    # def batch_insert(self, values, context=None):
-    #     cr=self.env.cr
-    #     vals_length = len(values)
-    #     sql_fileds = ",".join(fileds)
-    #     cycle_number = vals_length / 100
-    #     if vals_length % 100 != 0:
-    #         cycle_number = cycle_number + 1
-    #     for index in xrange(cycle_number):
-    #         if index == cycle_number - 1:
-    #             sql_values = ",".join(values[index * 100:vals_length])
-    #         else:
-    #             sql_values = ",".join(values[index * 100:index * 100 + 100])
-    #         sql = "INSERT INTO %s (%s) VALUES %s;" % (
-    #             model, sql_fileds, sql_values)
-    #         cr.execute(sql)
+    def batch_insert(self, model, fileds, values, context=None):
+        # 批量插入到数据库
+        cr = self.env.cr
+        vals_length = len(values)
+        sql_fileds = ",".join(fileds)
+        sql_values = ",".join(values)
+        sql = "INSERT INTO %s (%s) VALUES %s;" % (
+            model, sql_fileds, sql_values)
+        cr.execute(sql)
