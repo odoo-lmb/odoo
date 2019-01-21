@@ -146,13 +146,19 @@ class AccountAnalyticLine(models.Model):
         #     temp_dict[line.employee_id] = {}
         #     temp_dict[line.employee_id][line.date] = line.unit_amount
 
+    @api.constrains('date')
+    def _check_date(self):
+        for line in self:
+           self.env['account.analytic.line'].search(
+                [('user_id', '=', line.user_id.id), ('date', '=', line.date),('is_fake_data','!=',False)]).unlink()
+
     @api.constrains('is_approval')
     def _check_is_approval(self):
         temp_dict = {}
 
         for line in self:
             if line.is_approval == 1:
-                rst = self.env['account.analytic.line'].search(
+                rst = self.env['account.analytic.line'].unlink(
                     [('user_id', '=', line.user_id.id), ('date', '=', line.date)])
                 count_amount = 0
 
@@ -194,7 +200,7 @@ class AccountAnalyticLine(models.Model):
 
     @api.multi
     def write(self, values):
-        self.check_timesheet_sanity_fail_reason_type(values)
+        self._sanity_fail_reason_type(values)
         self._check_special_date(values)
         self._check_project_task(values)
 
@@ -432,8 +438,9 @@ class AccountAnalyticLine(models.Model):
         now = datetime.now()
         # 取需要工作的时间
         if flag=='last_week':
+            sunday_last_week = now - timedelta(days=now.isoweekday())
             last_week = [
-                now - timedelta(days=now.weekday() + i) for i in
+                sunday_last_week - timedelta(i) for i in
                          range(7)]
             list_date = last_week
 

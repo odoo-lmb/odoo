@@ -7,7 +7,7 @@
             <field name="view_mode">tree</field>
             <field name="domain">[('project_id', '!=', False),
                 ('date',"&gt;=",(context_today() - datetime.timedelta(days=context_today().weekday() + 7)).strftime('%Y-%m-%d')),
-                ('date',"&lt;=",(context_today() - datetime.timedelta(days=context_today().weekday() + 1)).strftime('%Y-%m-%d'))]</field>
+                ('date',"&lt;=",(context_today() - datetime.timedelta(days=context_today().weekday() +1)).strftime('%Y-%m-%d'))]</field>
              <field name="context">{
                 "search_default_week":1,
             }</field>
