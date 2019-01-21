@@ -194,7 +194,7 @@ class AccountAnalyticLine(models.Model):
 
     @api.multi
     def write(self, values):
-        self.check_timesheet_sanity_fail_reason_type(values)
+        self._sanity_fail_reason_type(values)
         self._check_special_date(values)
         self._check_project_task(values)
 
