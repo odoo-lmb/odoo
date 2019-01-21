@@ -3,13 +3,21 @@
 
 from lxml import etree
 import json
-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 from odoo.exceptions import ValidationError, AccessError
-
+from datetime import timedelta, datetime,date
 import logging
+import psycopg2
 _logger = logging.getLogger(__name__)
+
+
+HOLIDAY_NAME = "假期"
+CHECK_WEEKS = [5, 6]
+NEED_WORK = 1
+NOT_WORK = 2
+SPECIAL_DATE_ERROR = "这一天是非工作日，暂不需要填写工时"
+
 
 class AccountAnalyticLine(models.Model):
     _inherit = 'account.analytic.line'
@@ -17,27 +25,42 @@ class AccountAnalyticLine(models.Model):
     @api.model
     def default_get(self, field_list):
         result = super(AccountAnalyticLine, self).default_get(field_list)
-        if not self.env.context.get('default_employee_id') and 'employee_id' in field_list and result.get('user_id'):
-            result['employee_id'] = self.env['hr.employee'].search([('user_id', '=', result['user_id'])], limit=1).id
+        if not self.env.context.get(
+                'default_employee_id') and 'employee_id' in field_list and result.get('user_id'):
+            result['employee_id'] = self.env['hr.employee'].search(
+                [('user_id', '=', result['user_id'])], limit=1).id
         return result
 
     task_id = fields.Many2one('project.task', 'Task', index=True)
-    project_id = fields.Many2one('project.project', 'Project', domain=[('allow_timesheets', '=', True)])
+    project_id = fields.Many2one(
+        'project.project', 'Project', domain=[
+            ('allow_timesheets', '=', True)])
 
     employee_id = fields.Many2one('hr.employee', "Employee")
-    approver = fields.Many2one('hr.employee', '审批员',store=True,)
-    department_id = fields.Many2one('hr.department', "Department", compute='_compute_department_id', store=True, compute_sudo=True)
+    approver = fields.Many2one('hr.employee', '审批员', store=True,)
+    department_id = fields.Many2one(
+        'hr.department',
+        "Department",
+        compute='_compute_department_id',
+        store=True,
+        compute_sudo=True)
     timesheet_type = fields.Selection(
         [(1, "日常工作"), (2, "调休"), (3, "年假"), (4, "病假"), (5, "事假"), (6, "婚假"), (7, "产假"), (8, "陪产假"), (9, "其他假期")], string='类型',
         track_visibility='always',
         copy=False, store=True, default=1)
-    is_approval= fields.Selection(
-        [(0, "审核中"), (1, "通过"),(2, "驳回")], string='审批',
+    is_approval = fields.Selection(
+        [(0, "审核中"), (1, "通过"), (2, "驳回")], string='审批',
         track_visibility='always',
         copy=False, store=True, default=0)
 
-    is_myself =fields.Boolean( compute='_compute_myself',
-        string="is USER self",)
+    is_myself = fields.Boolean(compute='_compute_myself',
+                               string="is USER self",)
+    sanity_fail_reason = fields.Char(
+        'check timesheet',
+        compute='_check_timesheet',
+        readonly=True,
+        store=False)
+    is_fake_data = fields.Boolean(string="is fake data", default=0)
 
     @api.onchange('project_id')
     def onchange_project_id(self):
@@ -66,7 +89,7 @@ class AccountAnalyticLine(models.Model):
 
     @api.depends('employee_id')
     def _compute_myself(self):
-         self.is_myself = (self.user_id.id == self.env.user.id)
+        self.is_myself = (self.user_id.id == self.env.user.id)
 
     @api.onchange('approver')
     def onchange_approver(self):
@@ -76,8 +99,6 @@ class AccountAnalyticLine(models.Model):
                 if self.employee_id.approver:
                     self.approver = self.employee_id.approver
 
-
-
     @api.constrains('unit_amount')
     def _check_unit_amount(self):
         temp_dict = {}
@@ -85,7 +106,7 @@ class AccountAnalyticLine(models.Model):
         for line in self:
             print(
                 "line.employee_id:%s line.date:%s line.unit_amount:%s" % (
-                line.employee_id.user_id, line.date, line.unit_amount))
+                    line.employee_id.user_id, line.date, line.unit_amount))
             if line.unit_amount > 8:
                 raise ValidationError(
                     _('持续时间不能超过8.'))
@@ -109,24 +130,21 @@ class AccountAnalyticLine(models.Model):
                 raise ValidationError(
                     _('一日持续时间总计不能超过8.'))
 
-
-
-
-        sudo_self = self.sudo()  # this creates only one env for all operation that required sudo()
+        # this creates only one env for all operation that required sudo()
+        sudo_self = self.sudo()
         # (re)compute the amount (depending on unit_amount, employee_id for the cost, and account_id for currency)
 
-
-            # if temp_dict.get(line.employee_id):
-            #     if temp_dict[line.employee_id].get(line.date):
-            #         temp_dict[line.employee_id][line.date] += line.unit_amount
-            #         if temp_dict[line.employee_id][line.date] > 8:
-            #             raise ValidationError(
-            #                 _('时间不能超过8.'))
-            #     else:
-            #         temp_dict[line.employee_id][line.date] = line.unit_amount
-            # else:
-            #     temp_dict[line.employee_id] = {}
-            #     temp_dict[line.employee_id][line.date] = line.unit_amount
+        # if temp_dict.get(line.employee_id):
+        #     if temp_dict[line.employee_id].get(line.date):
+        #         temp_dict[line.employee_id][line.date] += line.unit_amount
+        #         if temp_dict[line.employee_id][line.date] > 8:
+        #             raise ValidationError(
+        #                 _('时间不能超过8.'))
+        #     else:
+        #         temp_dict[line.employee_id][line.date] = line.unit_amount
+        # else:
+        #     temp_dict[line.employee_id] = {}
+        #     temp_dict[line.employee_id][line.date] = line.unit_amount
 
     @api.constrains('is_approval')
     def _check_is_approval(self):
@@ -143,10 +161,6 @@ class AccountAnalyticLine(models.Model):
     #     for line in self:
     #
 
-
-
-
-
     # ----------------------------------------------------
     # ORM overrides
     # ----------------------------------------------------
@@ -154,28 +168,22 @@ class AccountAnalyticLine(models.Model):
     @api.model
     def create(self, values):
         # 判断类型
-        holiday_name = "假期"
-        timesheet_type = values.get('timesheet_type')
-        project_id = values.get('project_id')
-        project_name = self.env['project.project'].search([('id', '=', project_id)], limit=1).name
-        if timesheet_type not in [1, 2] and project_name != holiday_name:
-            raise UserError(_('年假、病假、事假等类型，项目请选择假期'))
+        self._sanity_fail_reason_type(values)
+        self._check_special_date(values)
+        self._check_project_task(values)
 
-        if timesheet_type in [1, 2]:
-            if not values.get('name'):
-                raise UserError(_('请填写工作简报，谢谢'))
-            if project_name == holiday_name:
-                raise UserError(_('日常工作和调休请不要选择项目为假期，谢谢'))
-
-        # compute employee only for timesheet lines, makes no sense for other lines
+        # compute employee only for timesheet lines, makes no sense for other
+        # lines
         if not values.get('employee_id') and values.get('project_id'):
             if values.get('user_id'):
                 ts_user_id = values['user_id']
             else:
                 ts_user_id = self._default_user()
-            values['employee_id'] = self.env['hr.employee'].search([('user_id', '=', ts_user_id)], limit=1).id
+            values['employee_id'] = self.env['hr.employee'].search(
+                [('user_id', '=', ts_user_id)], limit=1).id
             if not values.get('approver'):
-                employee = self.env['hr.employee'].browse(values['employee_id'])
+                employee = self.env['hr.employee'].browse(
+                    values['employee_id'])
                 values['approver'] = employee.approver.id
 
         values = self._timesheet_preprocess(values)
@@ -186,28 +194,9 @@ class AccountAnalyticLine(models.Model):
 
     @api.multi
     def write(self, values):
-        holiday_name = "假期"
-        timesheet_type = values.get('timesheet_type') or self.timesheet_type
-
-        if values.get('project_id'):
-            project_name = self.env['project.project'].search([('id', '=', values.get('project_id'))], limit=1).name
-        else:
-            project_name = self.project_id.name
-
-        if values.get('name') is not None:
-            name = values.get('name')
-        else:
-            name = self.name
-        # 如果工时表是普通类型
-        if timesheet_type in [1, 2]:
-            if not name:
-                raise UserError(_('请填写工作简报，谢谢'))
-
-            if project_name == holiday_name:
-                raise UserError(_('日常工作和调休请不要选择项目为假期，谢谢'))
-        else:
-            if project_name != holiday_name:
-                raise UserError(_('年假、病假、事假等类型，项目请选择假期'))
+        self.check_timesheet_sanity_fail_reason_type(values)
+        self._check_special_date(values)
+        self._check_project_task(values)
 
         if self.employee_id.user_id.id == self.env.user.id:
             if self.is_approval == 2:
@@ -219,9 +208,20 @@ class AccountAnalyticLine(models.Model):
         return result
 
     @api.model
-    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+    def fields_view_get(
+            self,
+            view_id=None,
+            view_type='form',
+            toolbar=False,
+            submenu=False):
         """ Set the correct label for `unit_amount`, depending on company UoM """
-        result = super(AccountAnalyticLine, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+        result = super(
+            AccountAnalyticLine,
+            self).fields_view_get(
+            view_id=view_id,
+            view_type=view_type,
+            toolbar=toolbar,
+            submenu=submenu)
         result['arch'] = self._apply_timesheet_label(result['arch'])
         return result
 
@@ -232,7 +232,8 @@ class AccountAnalyticLine(models.Model):
         # Here, we select only the unit_amount field having no string set to give priority to
         # custom inheretied view stored in database. Even if normally, no xpath can be done on
         # 'string' attribute.
-        for node in doc.xpath("//field[@name='unit_amount'][@widget='timesheet_uom'][not(@string)]"):
+        for node in doc.xpath(
+                "//field[@name='unit_amount'][@widget='timesheet_uom'][not(@string)]"):
             node.set('string', _('Duration (%s)') % (encoding_uom.name))
         return etree.tostring(doc, encoding='unicode')
 
@@ -247,27 +248,34 @@ class AccountAnalyticLine(models.Model):
         """
         # project implies analytic account
         if vals.get('project_id') and not vals.get('account_id'):
-            project = self.env['project.project'].browse(vals.get('project_id'))
+            project = self.env['project.project'].browse(
+                vals.get('project_id'))
             vals['account_id'] = project.analytic_account_id.id
             vals['company_id'] = project.analytic_account_id.company_id.id
             if not project.analytic_account_id.active:
-                raise UserError(_('The project you are timesheeting on is not linked to an active analytic account. Set one on the project configuration.'))
+                raise UserError(
+                    _('The project you are timesheeting on is not linked to an active analytic account. Set one on the project configuration.'))
         # employee implies user
         if vals.get('employee_id') and not vals.get('user_id'):
             employee = self.env['hr.employee'].browse(vals['employee_id'])
             vals['user_id'] = employee.user_id.id
         # force customer partner, from the task or the project
-        if (vals.get('project_id') or vals.get('task_id')) and not vals.get('partner_id'):
+        if (vals.get('project_id') or vals.get(
+                'task_id')) and not vals.get('partner_id'):
             partner_id = False
             if vals.get('task_id'):
-                partner_id = self.env['project.task'].browse(vals['task_id']).partner_id.id
+                partner_id = self.env['project.task'].browse(
+                    vals['task_id']).partner_id.id
             else:
-                partner_id = self.env['project.project'].browse(vals['project_id']).partner_id.id
+                partner_id = self.env['project.project'].browse(
+                    vals['project_id']).partner_id.id
             if partner_id:
                 vals['partner_id'] = partner_id
         # set timesheet UoM from the AA company (AA implies uom)
-        if 'product_uom_id' not in vals and all([v in vals for v in ['account_id', 'project_id']]):  # project_id required to check this is timesheet flow
-            analytic_account = self.env['account.analytic.account'].sudo().browse(vals['account_id'])
+        if 'product_uom_id' not in vals and all([v in vals for v in [
+                                                'account_id', 'project_id']]):  # project_id required to check this is timesheet flow
+            analytic_account = self.env['account.analytic.account'].sudo().browse(
+                vals['account_id'])
             vals['product_uom_id'] = analytic_account.company_id.project_time_mode_id.id
         return vals
 
@@ -290,9 +298,11 @@ class AccountAnalyticLine(models.Model):
                 dictionnary values to write (may be empty).
         """
         result = dict.fromkeys(self.ids, dict())
-        sudo_self = self.sudo()  # this creates only one env for all operation that required sudo()
+        # this creates only one env for all operation that required sudo()
+        sudo_self = self.sudo()
         # (re)compute the amount (depending on unit_amount, employee_id for the cost, and account_id for currency)
-        if any([field_name in values for field_name in ['unit_amount', 'employee_id', 'account_id']]):
+        if any([field_name in values for field_name in [
+               'unit_amount', 'employee_id', 'account_id']]):
             for timesheet in sudo_self:
                 cost = timesheet.employee_id.timesheet_cost or 0.0
                 amount = -timesheet.unit_amount * cost
@@ -302,3 +312,196 @@ class AccountAnalyticLine(models.Model):
                     'amount': amount_converted,
                 })
         return result
+
+    def _sanity_fail_reason_type(self, values):
+        """
+        检查类型规则
+        """
+        timesheet_type = values.get('timesheet_type') or self.timesheet_type
+        if values.get('project_id'):
+            project_name = self.env['project.project'].search([('id', '=', values.get('project_id'))], limit=1).name
+        else:
+            project_name = self.project_id.name
+
+        if values.get('name') is not None:
+            name = values.get('name')
+        else:
+            name = self.name
+
+        if timesheet_type not in [1, 2] and project_name != HOLIDAY_NAME:
+            raise UserError(_('年假、病假、事假等类型，项目请选择假期'))
+
+        if timesheet_type in [1, 2]:
+            if not name:
+                raise UserError(_('请填写工作简报，谢谢'))
+            if project_name == HOLIDAY_NAME:
+                raise UserError(_('日常工作和调休请不要选择项目为假期，谢谢'))
+
+    def _check_special_date(self, values):
+        """
+        检查特殊日期规则
+        """
+        if values.get('date'):
+            date = values.get('date')
+        else:
+            date = str(self.date)
+        # 判断是否特殊日期
+        week = datetime.strptime(date, "%Y-%m-%d").weekday()
+        special_date = self.env['special_date.date'].search([('date', '=', date)], limit=1)
+        if week in CHECK_WEEKS:
+            # 是特殊日期要上班
+            if special_date.id and special_date.options == NEED_WORK:
+                pass
+            else:
+                raise UserError(_('这一天是非工作日，暂不需要填写工时'))
+        else:  # 如果是周一至周五的特殊日期并且指定不需要上班
+            if special_date.id and special_date.options == NOT_WORK:
+                raise UserError(_('这一天是非工作日，暂不需要填写工时'))
+
+    def _check_project_task(self, values):
+        """
+        检查项目子任务
+        """
+        project_id = values.get('project_id')
+        if project_id is None:
+            project_id = self.project_id.id
+        task_id = values.get('task_id')
+        if task_id is None:
+            task_id = self.task_id.id
+
+        list_task = self.env['project.task'].search([('project_id', '=', project_id)])
+        task_ids = []
+        for task in list_task:
+            task_ids.append(task.id)
+        if task_ids and task_id not in task_ids:
+            raise UserError(_('此项目有子任务，请选择对应子任务，谢谢'))
+
+
+    @api.depends('employee_id')
+    def _check_timesheet(self):
+        now = datetime.now()
+        last_week = [datetime.strftime(
+            now - timedelta(days=now.weekday() + i), '%Y-%m-%d') for i in
+                                    range(7)]
+        for timesheet in self:
+            timesheet.sanity_fail_reason = ""
+            rst = self.env['account.analytic.line'].search(
+                [('user_id', '=', timesheet.user_id.id),('date','=',timesheet.date)])
+            count_amount = 0
+            for temp in rst:
+                count_amount += temp.unit_amount
+            if not timesheet.is_fake_data:
+                if count_amount < 8:
+                    timesheet.sanity_fail_reason = "当日填写时长不够"
+                if int(timesheet.unit_amount) != timesheet.unit_amount:
+                    timesheet.sanity_fail_reason += " 该工时的时长为非整数"
+                if timesheet.is_approval != 1:
+                    timesheet.sanity_fail_reason += " 该工时处于未通过状态"
+                if timesheet.project_id:
+                    list_task = self.env['project.task'].search(
+                        [('project_id', '=', timesheet.project_id.id)])
+                    list_task_id = [task.id for task in list_task]
+                    if list_task and timesheet.task_id.id not in list_task_id:
+                        timesheet.sanity_fail_reason += " 请选择正确的任务"
+                check_date = self.env['special_date.date'].search(
+                    [('date', '=', timesheet.date)], limit=1)
+                if check_date.options == NOT_WORK:
+                    timesheet.sanity_fail_reason += '这一天是非工作日，暂不需要填写工时'
+            else:
+                timesheet.sanity_fail_reason += '当日未填写工时'
+
+
+
+
+
+    def check_last_week(self):
+        self.update_db_data()
+        return True
+
+
+    def check_last_month(self):
+        self.update_db_data('last_month')
+        return True
+
+
+    def update_db_data(self,flag="last_week"):
+        list_employee = self.env['hr.employee'].search(
+            [('approver.user_id', '=', self.env.user.id)])
+        list_timesheet = self.env['account.analytic.line'].search(
+            [('approver.user_id', '=', self.env.user.id)])
+        now = datetime.now()
+        # 取需要工作的时间
+        if flag=='last_week':
+            last_week = [
+                now - timedelta(days=now.weekday() + i) for i in
+                         range(7)]
+            list_date = last_week
+
+        else:
+            last_month_last_day = date(now.year, now.month, 1) - timedelta(days=1)
+            last_month_first_day=date(last_month_last_day.year, last_month_last_day.month, 1)
+            last_month=[last_month_first_day + timedelta(days=i) for i in
+                         range((last_month_last_day-last_month_first_day).days)]
+            list_date = last_month
+
+        weekday = [i for i in list_date if i.isoweekday() <6] # 所有工作日
+        weekend = [i for i in list_date if i.isoweekday() > 5] # 所有周末
+
+        list_weekday = [str(date.strftime(temp_date,'%Y-%m-%d')) for temp_date in weekday]
+        list_weekend = [str(date.strftime(temp_date, '%Y-%m-%d')) for temp_date in
+                        weekend]
+        # 取需要工作的特殊周末
+        db_special_workday = self.env['special_date.date'].search(
+            [('date', 'in', list_weekend),('options','=',NEED_WORK)])
+        list_special_workday = [str(day.date) for day in db_special_workday]
+        # 取不需要工作的特殊工作日
+        db_special_unworkday = self.env['special_date.date'].search(
+            [('date', 'in',  list_weekday), ('options', '=',  NOT_WORK)])
+        list_special_unworkday = [str(day.date) for day in db_special_unworkday]
+        # 算出所用需要工作的日子
+        all_work_day = list((set(list_weekday)-set(list_special_unworkday)).union(set(list_special_workday)))
+        # 给每个用户每一天都制造一个伪数据
+        dict_all = {}
+        dict_employee ={}  # 存放每个员工的uid
+        dict_approver = {} # 存放每个员工的审批员的uid
+        for employee in list_employee:
+            if not employee.user_id.id:
+                continue
+            if not dict_all.get(employee.user_id.id):
+                dict_all[employee.user_id.id] = {}
+                dict_employee[employee.user_id.id]=employee.id
+                dict_approver[employee.user_id.id]=employee.approver.id
+            for str_date in all_work_day:
+                dict_all[employee.user_id.id][str_date] = 1
+        # 从所有的伪造数据中删除已有的真数据
+        for timesheet in list_timesheet:
+            if not dict_all.get(timesheet.user_id.id):
+                continue
+            dict_all[timesheet.user_id.id].pop(str(timesheet.date),None)
+        # 对应的项目字段
+        project = self.env['project.project'].search(
+            [('analytic_account_id.id', '!=', 0)],limit=1)
+        account_id = project.analytic_account_id.id
+        # 要插入的字段
+        insert_field = ["user_id", "create_uid", "employee_id", "approver",
+                        "project_id", "date","amount","account_id","company_id","is_fake_data"]
+        # 要插入的值
+        values = []
+        for employee_uid in dict_all:
+            for str_date in dict_all[employee_uid]:
+                values.append(
+                    "('%s','%s','%s', '%s','%s','%s',1,  '%s',1,True)" % (
+                        employee_uid, employee_uid, dict_employee[employee_uid],
+                        dict_approver[employee_uid], project.id, str_date, account_id))
+        if values:
+            self.batch_insert('account_analytic_line',insert_field,values)
+
+    def batch_insert(self, model, fileds, values, context=None):
+        # 批量插入到数据库
+        cr = self.env.cr
+        vals_length = len(values)
+        sql_fileds = ",".join(fileds)
+        sql_values = ",".join(values)
+        sql = "INSERT INTO %s (%s) VALUES %s;" % (
+            model, sql_fileds, sql_values)
+        cr.execute(sql)

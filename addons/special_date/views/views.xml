@@ -1,0 +1,47 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+    <record model="ir.ui.view" id="special_date.list">
+      <field name="name">special_date list</field>
+      <field name="model">special_date.date</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="date"/>
+          <field name="options"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- actions opening views on models -->
+    <record model="ir.actions.act_window" id="special_date.action_window">
+      <field name="name">特殊日期</field>
+      <field name="res_model">special_date.date</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- server action to the one above -->
+    <!--<record model="ir.actions.server" id="special_date.action_server">-->
+      <!--<field name="name">special_date server</field>-->
+      <!--<field name="model_id" ref="model_special_date_special_date"/>-->
+      <!--<field name="state">code</field>-->
+      <!--<field name="code">-->
+        <!--action = {-->
+          <!--"type": "ir.actions.act_window",-->
+          <!--"view_mode": "tree,form",-->
+          <!--"res_model": self._special_date,-->
+        <!--}-->
+      <!--</field>-->
+    <!--</record>-->
+
+    <!-- Top menu item -->
+    <menuitem name="特殊日期" id="special_date.menu_root" groups="group_special_date_manager"/>
+    <!-- menu categories -->
+    <menuitem name="列表" id="special_date.menu_1" parent="special_date.menu_root" action="special_date.action_window"/>
+    <!--<menuitem name="Menu 2" id="special_date.menu_2" parent="special_date.menu_root"/>-->
+    <!-- actions -->
+    <!--<menuitem name="List" id="special_date.menu_1_list" parent="special_date.menu_1"-->
+              <!--action="special_date.action_window"/>-->
+    <!--<menuitem name="Server to list" id="special_date" parent="special_date.menu_2"-->
+              <!--action="special_date.action_server"/>-->
+  </data>
+</odoo>
