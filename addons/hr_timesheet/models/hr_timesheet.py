@@ -146,13 +146,19 @@ class AccountAnalyticLine(models.Model):
         #     temp_dict[line.employee_id] = {}
         #     temp_dict[line.employee_id][line.date] = line.unit_amount
 
+    @api.constrains('date')
+    def _check_date(self):
+        for line in self:
+           self.env['account.analytic.line'].search(
+                [('user_id', '=', line.user_id.id), ('date', '=', line.date),('is_fake_data','!=',False)]).unlink()
+
     @api.constrains('is_approval')
     def _check_is_approval(self):
         temp_dict = {}
 
         for line in self:
             if line.is_approval == 1:
-                rst = self.env['account.analytic.line'].search(
+                rst = self.env['account.analytic.line'].unlink(
                     [('user_id', '=', line.user_id.id), ('date', '=', line.date)])
                 count_amount = 0
 
