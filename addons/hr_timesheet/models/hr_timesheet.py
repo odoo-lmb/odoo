@@ -426,7 +426,7 @@ class AccountAnalyticLine(models.Model):
 
     def update_db_data(self,flag="last_week"):
         list_employee = self.env['hr.employee'].search(
-            [('parent_id.user_id', '=', self.env.user.id)])
+            [('approver.user_id', '=', self.env.user.id)])
         list_timesheet = self.env['account.analytic.line'].search(
             [('approver.user_id', '=', self.env.user.id)])
         now = datetime.now()
@@ -482,8 +482,6 @@ class AccountAnalyticLine(models.Model):
         project = self.env['project.project'].search(
             [('analytic_account_id.id', '!=', 0)],limit=1)
         account_id = project.analytic_account_id.id
-        my_employee_id = self.env['hr.employee'].search(
-            [('user_id', '=', self.env.user.id)], limit=1).id
         # 要插入的字段
         insert_field = ["user_id", "create_uid", "employee_id", "approver",
                         "project_id", "date","amount","account_id","company_id","is_fake_data"]

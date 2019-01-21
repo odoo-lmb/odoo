@@ -113,13 +113,13 @@
       <menuitem id="timesheet_menu_sanity_check_timesheet_last_week"
         parent="menu_timesheets_sanity_check_timesheet"
         action="check_last_week"
-        groups="group_timesheet_manager"
+        groups="hr_timesheet.group_timesheet_approver"
         name="上周分析"
         sequence="15"/>
         <menuitem id="timesheet_menu_sanity_check_timesheet_last_month"
         parent="menu_timesheets_sanity_check_timesheet"
         action="check_last_month"
-        groups="group_timesheet_manager"
+        groups="hr_timesheet.group_timesheet_approver"
         name="上月分析"
         sequence="16"/>
 
