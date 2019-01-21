@@ -432,8 +432,9 @@ class AccountAnalyticLine(models.Model):
         now = datetime.now()
         # 取需要工作的时间
         if flag=='last_week':
+            sunday_last_week = now - timedelta(days=now.isoweekday())
             last_week = [
-                now - timedelta(days=now.weekday() + i) for i in
+                sunday_last_week - timedelta(i) for i in
                          range(7)]
             list_date = last_week
 
