@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_special_date_special_date,special_date.date,model_special_date_date,group_special_date_user,1,0,0,0
+access_base_special_date_special_date,base_special_date.date,model_special_date_date,base.group_user,1,0,0,0
 access_manager_special_date_special_date,special_date.date_manage,model_special_date_date,group_special_date_manager,1,1,1,1
