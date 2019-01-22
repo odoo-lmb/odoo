@@ -514,13 +514,7 @@ class AccountAnalyticLine(models.Model):
         list_weekday = [str(date.strftime(temp_date,'%Y-%m-%d')) for temp_date in weekday]
         list_weekend = [str(date.strftime(temp_date, '%Y-%m-%d')) for temp_date in
                         weekend]
-        # 获取所有员工工时
-        list_timesheet = []
-        all_date_list = list_weekday + list_weekend
-        for employee in list_employee:
-            timesheet_info = self.get_user_timesheet(employee.user_id.id, all_date_list)
-            if timesheet_info:
-                list_timesheet.extend(timesheet_info)
+          
         # 取需要工作的特殊周末
         db_special_workday = self.env['special_date.date'].search(
             [('date', 'in', list_weekend),('options','=',NEED_WORK)])
@@ -562,9 +556,6 @@ class AccountAnalyticLine(models.Model):
         values = []
         for employee_uid in dict_all:
             for str_date in dict_all[employee_uid]:
-                approver_info = dict_approver[employee_uid]
-                if not approver_info:
-                    approver_info = 2175
                 values.append(
                     "('%s','%s','%s','%s','%s','%s',1,  '%s',1,True)" % (
                         employee_uid, employee_uid, dict_employee[employee_uid],dict_department[employee_uid],
