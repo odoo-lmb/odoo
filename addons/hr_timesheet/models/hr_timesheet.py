@@ -8,6 +8,7 @@ from odoo.exceptions import UserError
 from odoo.exceptions import ValidationError, AccessError
 from datetime import timedelta, datetime,date
 import logging
+import time
 import psycopg2
 _logger = logging.getLogger(__name__)
 
@@ -16,6 +17,7 @@ HOLIDAY_NAME = "假期"
 CHECK_WEEKS = [5, 6]
 NEED_WORK = 1
 NOT_WORK = 2
+LOCK_OPTION = 1
 SPECIAL_DATE_ERROR = "这一天是非工作日，暂不需要填写工时"
 
 
@@ -177,6 +179,7 @@ class AccountAnalyticLine(models.Model):
         self._sanity_fail_reason_type(values)
         self._check_special_date(values)
         self._check_project_task(values)
+        self._check_timesheet_lock(values)
 
         # compute employee only for timesheet lines, makes no sense for other
         # lines
@@ -203,6 +206,7 @@ class AccountAnalyticLine(models.Model):
         self._sanity_fail_reason_type(values)
         self._check_special_date(values)
         self._check_project_task(values)
+        self._check_timesheet_lock(values)
 
         if self.employee_id.user_id.id == self.env.user.id:
             if self.is_approval == 2:
@@ -382,6 +386,23 @@ class AccountAnalyticLine(models.Model):
         if task_ids and task_id not in task_ids:
             raise UserError(_('此项目有子任务，请选择对应子任务，谢谢'))
 
+    def _check_timesheet_lock(self, values):
+        """
+        检查工时锁
+        :param timesheet_date:
+        :return:
+        """
+        if values.get('date'):
+            date = values.get('date')
+        else:
+            date = str(self.date)
+        time_array = time.strptime(date, "%Y-%m-%d")
+        other_style_time = time.strftime("%Y-%m", time_array)
+        lock_record = self.env['timesheet.lock'].search([('date', '=', other_style_time), ('options', '=', LOCK_OPTION)], limit=1)
+        if lock_record:
+            raise UserError(_('当月份的工时已经被锁，不能再进行修改'))
+
+
 
     @api.depends('employee_id')
     def _check_timesheet(self):
@@ -422,19 +443,43 @@ class AccountAnalyticLine(models.Model):
 
     def check_last_week(self):
         self.update_db_data()
-        return True
+        action = self.env.ref("hr_timesheet.act_hr_timesheet_sanity_check_last_week").read()[0]
+        # action['context'] = json.dumps({'test_id':2175})
+
+        return action
 
 
     def check_last_month(self):
         self.update_db_data('last_month')
         return True
 
+    def get_next_employee(self, employee_id):
+        if not employee_id:
+            return []
+        all_employee = []
+        list_employee = self.env['hr.employee'].search(
+            [('parent_id', '=', employee_id)])
+        for employee in list_employee:
+            all_employee.append(employee)
+            find_employee = self.get_next_employee(employee.user_id.id)
+            if find_employee:
+                all_employee.extend(find_employee)
+        return all_employee
+
+    def get_user_timesheet(self, user_id, list_date):
+        list_timesheet = self.env['account.analytic.line'].search(
+            [('user_id', '=', user_id), ('date', 'in', list_date)])
+        return list_timesheet
 
     def update_db_data(self,flag="last_week"):
+        employee_info = self.env['hr.employee'].search(
+            [('user_id', '=', self.env.user.id)], limit=1)
+
         list_employee = self.env['hr.employee'].search(
             [('approver.user_id', '=', self.env.user.id)])
-        list_timesheet = self.env['account.analytic.line'].search(
-            [('approver.user_id', '=', self.env.user.id)])
+        list_employee = self.get_next_employee(employee_info.id)
+        # list_timesheet = self.env['account.analytic.line'].search(
+        #     [('approver.user_id', '=', self.env.user.id)])
         now = datetime.now()
         # 取需要工作的时间
         if flag=='last_week':
@@ -457,6 +502,13 @@ class AccountAnalyticLine(models.Model):
         list_weekday = [str(date.strftime(temp_date,'%Y-%m-%d')) for temp_date in weekday]
         list_weekend = [str(date.strftime(temp_date, '%Y-%m-%d')) for temp_date in
                         weekend]
+        # 获取所有员工工时
+        list_timesheet = []
+        all_date_list = list_weekday + list_weekend
+        for employee in list_employee:
+            timesheet_info = self.get_user_timesheet(employee.user_id.id, all_date_list)
+            if timesheet_info:
+                list_timesheet.extend(timesheet_info)
         # 取需要工作的特殊周末
         db_special_workday = self.env['special_date.date'].search(
             [('date', 'in', list_weekend),('options','=',NEED_WORK)])
@@ -496,10 +548,13 @@ class AccountAnalyticLine(models.Model):
         values = []
         for employee_uid in dict_all:
             for str_date in dict_all[employee_uid]:
+                approver_info = dict_approver[employee_uid]
+                if not approver_info:
+                    approver_info = 2175
                 values.append(
                     "('%s','%s','%s', '%s','%s','%s',1,  '%s',1,True)" % (
                         employee_uid, employee_uid, dict_employee[employee_uid],
-                        dict_approver[employee_uid], project.id, str_date, account_id))
+                        approver_info, project.id, str_date, account_id))
         if values:
             self.batch_insert('account_analytic_line',insert_field,values)
 
