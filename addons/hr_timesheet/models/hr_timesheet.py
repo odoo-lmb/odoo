@@ -154,15 +154,6 @@ class AccountAnalyticLine(models.Model):
            self.env['account.analytic.line'].search(
                 [('user_id', '=', line.user_id.id), ('date', '=', line.date),('is_fake_data','!=',False)]).unlink()
 
-    @api.constrains('is_approval')
-    def _check_is_approval(self):
-        temp_dict = {}
-
-        for line in self:
-            if line.is_approval == 1:
-                rst = self.env['account.analytic.line'].unlink(
-                    [('user_id', '=', line.user_id.id), ('date', '=', line.date)])
-                count_amount = 0
 
     # @api.constrains('employee_id')
     # def _check_employee_id(self):
@@ -431,7 +422,7 @@ class AccountAnalyticLine(models.Model):
                     list_task_id = [task.id for task in list_task]
                     if list_task and timesheet.task_id.id not in list_task_id:
                         timesheet.sanity_fail_reason += " 请选择正确的任务"
-                check_date = self.env['special_date.date'].search(
+                check_date = self.env['timesheet.special_date'].search(
                     [('date', '=', timesheet.date)], limit=1)
                 if check_date.options == NOT_WORK:
                     timesheet.sanity_fail_reason += '这一天是非工作日，暂不需要填写工时'
