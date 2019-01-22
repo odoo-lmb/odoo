@@ -516,11 +516,11 @@ class AccountAnalyticLine(models.Model):
                         weekend]
           
         # 取需要工作的特殊周末
-        db_special_workday = self.env['special_date.date'].search(
+        db_special_workday = self.env['timesheet.special_date'].search(
             [('date', 'in', list_weekend),('options','=',NEED_WORK)])
         list_special_workday = [str(day.date) for day in db_special_workday]
         # 取不需要工作的特殊工作日
-        db_special_unworkday = self.env['special_date.date'].search(
+        db_special_unworkday = self.env['timesheet.special_date'].search(
             [('date', 'in',  list_weekday), ('options', '=',  NOT_WORK)])
         list_special_unworkday = [str(day.date) for day in db_special_unworkday]
         # 算出所用需要工作的日子
