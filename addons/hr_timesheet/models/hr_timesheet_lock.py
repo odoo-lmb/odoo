@@ -17,7 +17,7 @@ _logger = logging.getLogger(__name__)
 class TimeSheetLock(models.Model):
     _name = 'timesheet.lock'
 
-    date = fields.Char(
+    lock_date = fields.Char(
         string="锁定日期（年-月）", required=True)
     options = fields.Selection([
         (1, '锁定'),
@@ -26,15 +26,16 @@ class TimeSheetLock(models.Model):
 
     _sql_constraints = [
 
-        ('date_uniq', 'unique(date)', '日期不能重复'),
+        ('date_uniq', 'unique(lock_date)', '日期不能重复'),
 
     ]
 
-    @api.constrains('date')
+
+    @api.constrains('lock_date')
     def _check_date(self):
         for line in self:
             try:
-                time_array = time.strptime(line.date, "%Y-%m")
+                time_array = time.strptime(line.lock_date, "%Y-%m")
             except Exception as e:
                 _logger.error(e)
                 raise ValidationError(_('请输入正确的时间格式如2019-01'))

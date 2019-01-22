@@ -10,3 +10,4 @@ from . import res_config_settings
 from . import project
 from . import uom
 from . import hr_timesheet_lock
+from . import special_date

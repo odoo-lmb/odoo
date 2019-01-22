@@ -16,3 +16,5 @@ access_account_analytic_line_project_approver,account.analytic.line,analytic.mod
 access_account_analytic_line_project_manager,account.analytic.line1,analytic.model_account_analytic_line,hr_timesheet.group_timesheet_manager,1,1,1,1
 access_timesheet_lock_manager,hr.timesheet.lock.manage,model_timesheet_lock,hr_timesheet.group_timesheet_manager,1,1,1,1
 access_timesheet_lock_user,hr.timesheet.lock.user,model_timesheet_lock,base.group_user,1,0,0,0
+access_base_special_date_special_date,base_special_date.date,model_timesheet_special_date,base.group_user,1,0,0,0
+access_manager_special_date_special_date,special_date.date_manage,model_timesheet_special_date,group_timesheet_manager,1,1,1,1
