@@ -550,7 +550,7 @@ class AccountAnalyticLine(models.Model):
         my_employee_id = self.env['hr.employee'].search(
             [('user_id', '=',  self.env.user.id)],limit=1)
         # 要插入的字段
-        insert_field = ["user_id", "create_uid", "employee_id","department_id","approver"
+        insert_field = ["user_id", "create_uid", "employee_id","department_id","approver",
                         "project_id", "date","amount","account_id","company_id","is_fake_data"]
         # 要插入的值
         values = []
@@ -563,7 +563,7 @@ class AccountAnalyticLine(models.Model):
 
                 values.append(
                     "('%s','%s','%s','%s','%s','%s','%s',1,  '%s',1,True)" % (
-                        employee_uid, employee_uid, dict_employee[employee_uid],approver_id,dict_department[employee_uid],
+                        employee_uid, employee_uid, dict_employee[employee_uid],dict_department[employee_uid],approver_id,
                          project.id, str_date, account_id))
 
         if values:
