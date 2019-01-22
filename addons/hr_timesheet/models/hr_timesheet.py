@@ -358,7 +358,7 @@ class AccountAnalyticLine(models.Model):
             date = str(self.date)
         # 判断是否特殊日期
         week = datetime.strptime(date, "%Y-%m-%d").weekday()
-        special_date = self.env['special_date.date'].search([('date', '=', date)], limit=1)
+        special_date = self.env['timesheet.special_date'].search([('date', '=', date)], limit=1)
         if week in CHECK_WEEKS:
             # 是特殊日期要上班
             if special_date.id and special_date.options == NEED_WORK:
@@ -399,7 +399,7 @@ class AccountAnalyticLine(models.Model):
             date = str(self.date)
         time_array = time.strptime(date, "%Y-%m-%d")
         other_style_time = time.strftime("%Y-%m", time_array)
-        lock_record = self.env['timesheet.lock'].search([('date', '=', other_style_time), ('options', '=', LOCK_OPTION)], limit=1)
+        lock_record = self.env['timesheet.lock'].search([('lock_date', '=', other_style_time), ('options', '=', LOCK_OPTION)], limit=1)
         if lock_record:
             raise UserError(_('当月份的工时已经被锁，不能再进行修改'))
 

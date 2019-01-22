@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <menuitem id="timesheet_special_date_menu" name="特殊日期" parent="timesheet_menu_root"
+        groups="group_timesheet_manager"  action="timesheet_special_date_action_window" sequence="99"/>
+
+
+    <!-- actions opening views on models -->
+    <record model="ir.actions.act_window" id="timesheet_special_date_action_window">
+      <field name="name">特殊日期</field>
+      <field name="res_model">timesheet.special_date</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <record model="ir.ui.view" id="timesheet_special_date_view_tree">
+      <field name="name">timesheet.special_date.view_tree</field>
+      <field name="model">timesheet.special_date</field>
+      <field name="type">tree</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="date"/>
+          <field name="options"/>
+        </tree>
+      </field>
+    </record>
+
+
+</odoo>

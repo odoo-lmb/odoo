@@ -1,28 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <menuitem id="hr_timesheet_lock_menu" name="工时锁" parent="timesheet_menu_root"
-        groups="group_timesheet_manager" sequence="99"/>
+    <data>
+        <menuitem id="hr_timesheet_lock_menu" name="工时锁" parent="timesheet_menu_root"
+                  groups="group_timesheet_manager" action="hr_timesheet_lock_action_window" sequence="99"/>
 
 
-    <!-- actions opening views on models -->
-    <record model="ir.actions.act_window" id="hr_timesheet_lock_action_window">
-      <field name="name">锁定工时</field>
-      <field name="res_model">timesheet.lock</field>
-      <field name="view_mode">tree,form</field>
-    </record>
+        <!-- actions opening views on models -->
+        <record model="ir.actions.act_window" id="hr_timesheet_lock_action_window">
+            <field name="name">锁定工时</field>
+            <field name="res_model">timesheet.lock</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
-    <record model="ir.ui.view" id="timesheet_lock_view_tree">
-      <field name="name">timesheet.lock.view_tree</field>
-      <field name="model">timesheet.lock</field>
-      <field name="type">tree</field>
-      <field name="arch" type="xml">
-        <tree>
-          <field name="date"/>
-          <field name="options"/>
-        </tree>
-      </field>
-    </record>
+        <record model="ir.actions.act_window.view" id="test_lock">
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="timesheet_lock_view_tree"/>
+            <field name="act_window_id" ref="hr_timesheet_lock_action_window"/>
+        </record>
 
-    <menuitem id="hr_timesheet_lock_settings_menu_action" name="设置" parent="hr_timesheet_lock_menu"
-        action="hr_timesheet_lock_action_window" sequence="0"/>
+        <record model="ir.ui.view" id="timesheet_lock_view_tree">
+            <field name="name">timesheet.lock.view_tree</field>
+            <field name="model">timesheet.lock</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree editable="top" string="test" import="false">
+                    <field name="lock_date"/>
+                    <field name="options"/>
+                </tree>
+            </field>
+        </record>
+
+
+    </data>
+
+
+
 </odoo>
