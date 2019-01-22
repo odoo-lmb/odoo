@@ -195,6 +195,7 @@ class AccountAnalyticLine(models.Model):
                     values['employee_id'])
                 values['approver'] = employee.approver.id
 
+
         values = self._timesheet_preprocess(values)
         result = super(AccountAnalyticLine, self).create(values)
         if result.project_id:  # applied only for timesheet
@@ -442,73 +443,78 @@ class AccountAnalyticLine(models.Model):
 
 
     def check_last_week(self):
-        self.update_db_data()
-        action = self.env.ref("hr_timesheet.act_hr_timesheet_sanity_check_last_week").read()[0]
-        # action['context'] = json.dumps({'test_id':2175})
-
-        return action
+        self.update_db_data('last_week')
+        return True
 
 
     def check_last_month(self):
         self.update_db_data('last_month')
         return True
 
-    def get_next_employee(self, employee_id):
-        if not employee_id:
-            return []
-        all_employee = []
-        list_employee = self.env['hr.employee'].search(
-            [('parent_id', '=', employee_id)])
-        for employee in list_employee:
-            all_employee.append(employee)
-            find_employee = self.get_next_employee(employee.user_id.id)
-            if find_employee:
-                all_employee.extend(find_employee)
-        return all_employee
+    def check_this_week(self):
+        self.update_db_data("this_week")
+        return True
 
-    def get_user_timesheet(self, user_id, list_date):
-        list_timesheet = self.env['account.analytic.line'].search(
-            [('user_id', '=', user_id), ('date', 'in', list_date)])
-        return list_timesheet
+
+    def check_this_month(self):
+        self.update_db_data('this_month')
+        return True
+
 
     def update_db_data(self,flag="last_week"):
-        employee_info = self.env['hr.employee'].search(
-            [('user_id', '=', self.env.user.id)], limit=1)
-
-        list_employee = self.env['hr.employee'].search(
-            [('approver.user_id', '=', self.env.user.id)])
-        list_employee = self.get_next_employee(employee_info.id)
-        # list_timesheet = self.env['account.analytic.line'].search(
-        #     [('approver.user_id', '=', self.env.user.id)])
         now = datetime.now()
         # 取需要工作的时间
-        if flag=='last_week':
+        if flag == 'last_week':
             sunday_last_week = now - timedelta(days=now.isoweekday())
+            monday_last_week = sunday_last_week - timedelta(days=6)
             last_week = [
                 sunday_last_week - timedelta(i) for i in
                          range(7)]
             list_date = last_week
+            first_day = date.strftime(monday_last_week, '%Y-%m-%d')
+            last_day= date.strftime(sunday_last_week, '%Y-%m-%d')
 
-        else:
+        elif flag == 'this_week':
+            this_week = [
+                now - timedelta(i) for i in
+                         range(int(now.isoweekday()))]
+            list_date = this_week
+            first_day = date.strftime(date.today()-timedelta(days=now.weekday()), '%Y-%m-%d')
+            last_day= date.strftime(date.today(), '%Y-%m-%d')
+        elif flag == 'this_month':
+            this_month_first_day = date(now.year, now.month, 1)
+            this_month = [
+                this_month_first_day + timedelta(i) for i in
+                         range(int((date.today()-this_month_first_day).days))]
+            list_date = this_month
+            first_day = date.strftime(
+                this_month_first_day, '%Y-%m-%d')
+            last_day = date.strftime(date.today(), '%Y-%m-%d')
+
+        elif flag == 'last_month':
             last_month_last_day = date(now.year, now.month, 1) - timedelta(days=1)
             last_month_first_day=date(last_month_last_day.year, last_month_last_day.month, 1)
             last_month=[last_month_first_day + timedelta(days=i) for i in
                          range((last_month_last_day-last_month_first_day).days)]
             list_date = last_month
-
+            first_day = last_month_first_day
+            last_day = last_month_last_day
+        list_employee = self.env['hr.employee'].search(
+            [ '|',('user_id', '=', self.env.user.id),'|',
+            ('approver.user_id', '=', self.env.user.id),'|',
+            ("department_id.manager_id.user_id", '=', self.env.user.id),'|',
+            ('department_id.parent_id.manager_id.user_id', '=', self.env.user.id),(
+            'department_id.parent_id.parent_id.manager_id.user_id', '=',
+            self.env.user.id) ])
+        list_timesheet = self.env['account.analytic.line'].search(
+            [('date','>=',first_day),('date','<=',last_day),'|','|', '|','|',('approver.user_id', '=', self.env.user.id),('user_id', '=', self.env.user.id), ("department_id.manager_id.user_id",'=', self.env.user.id),('department_id.parent_id.manager_id.user_id','=', self.env.user.id),('department_id.parent_id.parent_id.manager_id.user_id','=', self.env.user.id)])
         weekday = [i for i in list_date if i.isoweekday() <6] # 所有工作日
         weekend = [i for i in list_date if i.isoweekday() > 5] # 所有周末
 
         list_weekday = [str(date.strftime(temp_date,'%Y-%m-%d')) for temp_date in weekday]
         list_weekend = [str(date.strftime(temp_date, '%Y-%m-%d')) for temp_date in
                         weekend]
-        # 获取所有员工工时
-        list_timesheet = []
-        all_date_list = list_weekday + list_weekend
-        for employee in list_employee:
-            timesheet_info = self.get_user_timesheet(employee.user_id.id, all_date_list)
-            if timesheet_info:
-                list_timesheet.extend(timesheet_info)
+          
         # 取需要工作的特殊周末
         db_special_workday = self.env['special_date.date'].search(
             [('date', 'in', list_weekend),('options','=',NEED_WORK)])
@@ -522,39 +528,39 @@ class AccountAnalyticLine(models.Model):
         # 给每个用户每一天都制造一个伪数据
         dict_all = {}
         dict_employee ={}  # 存放每个员工的uid
-        dict_approver = {} # 存放每个员工的审批员的uid
+        dict_department = {} # 存放每个员工的审批员的uid
         for employee in list_employee:
             if not employee.user_id.id:
                 continue
             if not dict_all.get(employee.user_id.id):
                 dict_all[employee.user_id.id] = {}
+                _logger.info("employees %s" % employee.user_id.id)
                 dict_employee[employee.user_id.id]=employee.id
-                dict_approver[employee.user_id.id]=employee.approver.id
+                dict_department[employee.user_id.id]=employee.department_id.id
             for str_date in all_work_day:
-                dict_all[employee.user_id.id][str_date] = 1
+                dict_all[employee.user_id.id][str(str_date)] = 1
         # 从所有的伪造数据中删除已有的真数据
         for timesheet in list_timesheet:
             if not dict_all.get(timesheet.user_id.id):
                 continue
+            _logger.info("timesheet.date %s" % timesheet.date)
             dict_all[timesheet.user_id.id].pop(str(timesheet.date),None)
         # 对应的项目字段
         project = self.env['project.project'].search(
             [('analytic_account_id.id', '!=', 0)],limit=1)
         account_id = project.analytic_account_id.id
         # 要插入的字段
-        insert_field = ["user_id", "create_uid", "employee_id", "approver",
+        insert_field = ["user_id", "create_uid", "employee_id","department_id",
                         "project_id", "date","amount","account_id","company_id","is_fake_data"]
         # 要插入的值
         values = []
         for employee_uid in dict_all:
             for str_date in dict_all[employee_uid]:
-                approver_info = dict_approver[employee_uid]
-                if not approver_info:
-                    approver_info = 2175
                 values.append(
-                    "('%s','%s','%s', '%s','%s','%s',1,  '%s',1,True)" % (
-                        employee_uid, employee_uid, dict_employee[employee_uid],
-                        approver_info, project.id, str_date, account_id))
+                    "('%s','%s','%s','%s','%s','%s',1,  '%s',1,True)" % (
+                        employee_uid, employee_uid, dict_employee[employee_uid],dict_department[employee_uid],
+                         project.id, str_date, account_id))
+
         if values:
             self.batch_insert('account_analytic_line',insert_field,values)
 
