@@ -154,15 +154,6 @@ class AccountAnalyticLine(models.Model):
            self.env['account.analytic.line'].search(
                 [('user_id', '=', line.user_id.id), ('date', '=', line.date),('is_fake_data','!=',False)]).unlink()
 
-    @api.constrains('is_approval')
-    def _check_is_approval(self):
-        temp_dict = {}
-
-        for line in self:
-            if line.is_approval == 1:
-                rst = self.env['account.analytic.line'].unlink(
-                    [('user_id', '=', line.user_id.id), ('date', '=', line.date)])
-                count_amount = 0
 
     # @api.constrains('employee_id')
     # def _check_employee_id(self):

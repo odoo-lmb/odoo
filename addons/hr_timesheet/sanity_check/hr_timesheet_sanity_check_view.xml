@@ -99,8 +99,8 @@
                                 <field name="project_id" readonly="1" required="1" />
                                 <field name="task_id" readonly="1" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" />
                                  <field name="approver" readonly="1" />
-                                <field name="is_approval" />
-                                <field name="sanity_fail_reason"/>
+                                <field name="is_approval"  readonly="1"/>
+                                <field name="sanity_fail_reason"  readonly="1"/>
                         </tree>
                     </field>
                 </record>
@@ -189,21 +189,25 @@
         parent="menu_timesheets_sanity_check_timesheet"
         action="check_last_week"
         name="上周分析"
+        groups="group_hr_timesheet_user"
         sequence="15"/>
         <menuitem id="timesheet_menu_sanity_check_timesheet_last_month"
         parent="menu_timesheets_sanity_check_timesheet"
         action="check_last_month"
+        groups="group_hr_timesheet_user"
         name="上月分析"
         sequence="16"/>
          <menuitem id="timesheet_menu_sanity_check_timesheet_this_week"
         parent="menu_timesheets_sanity_check_timesheet"
         action="check_this_week"
         name="本周分析"
+        groups="group_hr_timesheet_user"
         sequence="17"/>
         <menuitem id="timesheet_menu_sanity_check_timesheet_this_month"
         parent="menu_timesheets_sanity_check_timesheet"
         action="check_this_month"
         name="本月分析"
+        groups="group_hr_timesheet_user"
         sequence="18"/>
 
     </data>
