@@ -431,7 +431,7 @@ class AccountAnalyticLine(models.Model):
                     list_task_id = [task.id for task in list_task]
                     if list_task and timesheet.task_id.id not in list_task_id:
                         timesheet.sanity_fail_reason += " 请选择正确的任务"
-                check_date = self.env['special_date.date'].search(
+                check_date = self.env['timesheet.special_date'].search(
                     [('date', '=', timesheet.date)], limit=1)
                 if check_date.options == NOT_WORK:
                     timesheet.sanity_fail_reason += '这一天是非工作日，暂不需要填写工时'
