@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <menuitem id="hr_timesheet_lock_menu" name="工时锁" parent="timesheet_menu_root"
-        groups="group_timesheet_manager" sequence="100"/>
+        groups="group_timesheet_manager" sequence="99"/>
 
 
     <!-- actions opening views on models -->

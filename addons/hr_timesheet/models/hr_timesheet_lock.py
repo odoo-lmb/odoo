@@ -5,16 +5,12 @@
 # @File    : hr_timesheet_lock.py
 # @Desc    :
 
-
-
-from lxml import etree
 import json
+import time
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError
-from odoo.exceptions import ValidationError, AccessError
-from datetime import timedelta, datetime,date
 import logging
-import psycopg2
+from odoo.exceptions import ValidationError
+
 _logger = logging.getLogger(__name__)
 
 
@@ -33,3 +29,12 @@ class TimeSheetLock(models.Model):
         ('date_uniq', 'unique(date)', '日期不能重复'),
 
     ]
+
+    @api.constrains('date')
+    def _check_date(self):
+        for line in self:
+            try:
+                time_array = time.strptime(line.date, "%Y-%m")
+            except Exception as e:
+                _logger.error(e)
+                raise ValidationError(_('请输入正确的时间格式如2019-01'))
