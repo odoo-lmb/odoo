@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <menuitem id="hr_timesheet_lock_menu" name="工时锁" parent="timesheet_menu_root"
-                  groups="group_timesheet_manager" action="hr_timesheet_lock_action_window" sequence="99"/>
-
 
         <!-- actions opening views on models -->
         <record model="ir.actions.act_window" id="hr_timesheet_lock_action_window">
@@ -30,6 +27,8 @@
             </field>
         </record>
 
+        <menuitem id="hr_timesheet_lock_menu" name="工时锁" parent="timesheet_menu_root"
+                  groups="group_timesheet_manager" action="hr_timesheet_lock_action_window" sequence="99"/>
 
     </data>
 
