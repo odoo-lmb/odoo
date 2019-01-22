@@ -524,7 +524,8 @@ class AccountAnalyticLine(models.Model):
         # 给每个用户每一天都制造一个伪数据
         dict_all = {}
         dict_employee ={}  # 存放每个员工的uid
-        dict_department = {} # 存放每个员工的审批员的uid
+        dict_approver = {} # 存放每个员工的审批员的uid
+        dict_department = {}  # 存放每个员工的部门id
         for employee in list_employee:
             if not employee.user_id.id:
                 continue
@@ -533,6 +534,7 @@ class AccountAnalyticLine(models.Model):
                 _logger.info("employees %s" % employee.user_id.id)
                 dict_employee[employee.user_id.id]=employee.id
                 dict_department[employee.user_id.id]=employee.department_id.id
+                dict_approver[employee.user_id.id]=employee.approver.id
             for str_date in all_work_day:
                 dict_all[employee.user_id.id][str(str_date)] = 1
         # 从所有的伪造数据中删除已有的真数据
@@ -545,16 +547,23 @@ class AccountAnalyticLine(models.Model):
         project = self.env['project.project'].search(
             [('analytic_account_id.id', '!=', 0)],limit=1)
         account_id = project.analytic_account_id.id
+        my_employee_id = self.env['hr.employee'].search(
+            [('user_id', '=',  self.env.user.id)],limit=1)
         # 要插入的字段
-        insert_field = ["user_id", "create_uid", "employee_id","department_id",
+        insert_field = ["user_id", "create_uid", "employee_id","department_id","approver"
                         "project_id", "date","amount","account_id","company_id","is_fake_data"]
         # 要插入的值
         values = []
         for employee_uid in dict_all:
             for str_date in dict_all[employee_uid]:
+                if dict_approver[employee_uid]:
+                    approver_id = dict_approver[employee_uid]
+                else:
+                    approver_id = my_employee_id.id
+
                 values.append(
-                    "('%s','%s','%s','%s','%s','%s',1,  '%s',1,True)" % (
-                        employee_uid, employee_uid, dict_employee[employee_uid],dict_department[employee_uid],
+                    "('%s','%s','%s','%s','%s','%s','%s',1,  '%s',1,True)" % (
+                        employee_uid, employee_uid, dict_employee[employee_uid],approver_id,dict_department[employee_uid],
                          project.id, str_date, account_id))
 
         if values:
