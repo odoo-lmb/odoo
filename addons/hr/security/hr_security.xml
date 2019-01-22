@@ -38,7 +38,7 @@
       <field name="name">tax rule</field>
       <field name="model_id" ref="model_hr_employee"/>
      <field name="groups" eval="[(4,ref('group_hr_user'))]"/>
-      <field name="domain_force">['|',('user_id','=',user.id),'|',('parent_id.user_id', '=', user.id),('approver.user_id', '=', user.id)]</field>
+      <field name="domain_force">['|',('user_id','=',user.id),'|',('parent_id.user_id', '=', user.id),'|',('approver.user_id', '=', user.id),'|',('department_id.manager_id.user_id', '=', user.id),('department_id.parent_id.manager_id.user_id', '=', user.id)]</field>
     </record>
 
     <record id="hr_tax_rule3"  model="ir.rule">
