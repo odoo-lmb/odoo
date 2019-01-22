@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <menuitem id="timesheet_special_date_menu" name="特殊日期" parent="timesheet_menu_root"
-        groups="group_timesheet_manager"  action="timesheet_special_date_action_window" sequence="99"/>
-
 
     <!-- actions opening views on models -->
     <record model="ir.actions.act_window" id="timesheet_special_date_action_window">
@@ -23,5 +20,7 @@
       </field>
     </record>
 
+    <menuitem id="timesheet_special_date_menu" name="特殊日期" parent="timesheet_menu_root"
+        groups="group_timesheet_manager"  action="timesheet_special_date_action_window" sequence="99"/>
 
 </odoo>
