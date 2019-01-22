@@ -176,11 +176,13 @@
         <menuitem id="menu_timesheets_sanity_check"
             name="Sanity_check"
             parent="timesheet_menu_root"
+            groups="group_hr_timesheet_user"
             sequence="79"/>
 
         <menuitem id="menu_timesheets_sanity_check_timesheet"
             name="Sanity_check"
             parent="menu_timesheets_sanity_check"
+            groups="group_hr_timesheet_user"
             sequence="10"/>
 
       <menuitem id="timesheet_menu_sanity_check_timesheet_last_week"
@@ -197,12 +199,12 @@
         parent="menu_timesheets_sanity_check_timesheet"
         action="check_this_week"
         name="本周分析"
-        sequence="15"/>
+        sequence="17"/>
         <menuitem id="timesheet_menu_sanity_check_timesheet_this_month"
         parent="menu_timesheets_sanity_check_timesheet"
         action="check_this_month"
         name="本月分析"
-        sequence="16"/>
+        sequence="18"/>
 
     </data>
 </odoo>
