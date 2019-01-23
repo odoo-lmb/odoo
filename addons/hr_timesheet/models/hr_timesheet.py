@@ -608,6 +608,7 @@ class AccountAnalyticLine(models.Model):
         sql = "INSERT INTO %s (%s) VALUES %s;" % (
             model, sql_fileds, sql_values)
         cr.execute(sql)
+        cr.commit()
 
     def update_data(self, model,  values,id ):
         # 批量插入到数据库
@@ -617,3 +618,4 @@ class AccountAnalyticLine(models.Model):
         sql = "UPDATE %s SET %s='%s' WHERE id=%s;" % (
             model, fileds, values,id )
         cr.execute(sql)
+        cr.commit()
