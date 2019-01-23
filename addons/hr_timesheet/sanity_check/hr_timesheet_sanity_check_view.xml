@@ -45,7 +45,7 @@
         </record>
 
          <record id="act_hr_timesheet_sanity_check_this_month" model="ir.actions.act_window" >
-            <field name="name">本月分析</field>
+            <field name="name">本月分析(截止到本月最后一天)</field>
             <field name="res_model">account.analytic.line</field>
             <field name="view_mode">tree</field>
             <field name="domain">[('sanity_fail_reason', 'not in', ['',False]),
@@ -100,7 +100,7 @@
                                 <field name="task_id" readonly="1" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" />
                                  <field name="approver" readonly="1" />
                                 <field name="is_approval"  readonly="1"/>
-                                <field name="sanity_fail_reason"  readonly="1"/>
+                                <field name="sanity_fail_reason"  string="错误原因" readonly="1"/>
                         </tree>
                     </field>
                 </record>
@@ -179,32 +179,28 @@
             groups="group_hr_timesheet_user"
             sequence="79"/>
 
-        <menuitem id="menu_timesheets_sanity_check_timesheet"
-            name="Sanity_check"
-            parent="menu_timesheets_sanity_check"
-            groups="group_hr_timesheet_user"
-            sequence="10"/>
+
 
       <menuitem id="timesheet_menu_sanity_check_timesheet_last_week"
-        parent="menu_timesheets_sanity_check_timesheet"
+        parent="menu_timesheets_sanity_check"
         action="check_last_week"
         name="上周分析"
         groups="group_hr_timesheet_user"
         sequence="15"/>
         <menuitem id="timesheet_menu_sanity_check_timesheet_last_month"
-        parent="menu_timesheets_sanity_check_timesheet"
+        parent="menu_timesheets_sanity_check"
         action="check_last_month"
         groups="group_hr_timesheet_user"
         name="上月分析"
         sequence="16"/>
          <menuitem id="timesheet_menu_sanity_check_timesheet_this_week"
-        parent="menu_timesheets_sanity_check_timesheet"
+        parent="menu_timesheets_sanity_check"
         action="check_this_week"
         name="本周分析"
         groups="group_hr_timesheet_user"
         sequence="17"/>
         <menuitem id="timesheet_menu_sanity_check_timesheet_this_month"
-        parent="menu_timesheets_sanity_check_timesheet"
+        parent="menu_timesheets_sanity_check"
         action="check_this_month"
         name="本月分析"
         groups="group_hr_timesheet_user"
