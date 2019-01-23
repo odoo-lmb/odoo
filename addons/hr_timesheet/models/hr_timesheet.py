@@ -535,6 +535,10 @@ class AccountAnalyticLine(models.Model):
         for employee in list_employee:
             if not employee.user_id.id:
                 continue
+            employee_info = self.env['hr.employee'].search(
+                [('user_id', '=', employee.user_id.id)], limit=1)
+            first_working_day =  employee_info.first_working_day2 if employee_info.first_working_day2 else employee_info.first_working_day1
+            last_working_day = employee_info.last_working_day2 if employee_info.last_working_day2 else employee_info.last_working_day1
             if not dict_all.get(employee.user_id.id):
                 dict_all[employee.user_id.id] = {}
                 _logger.info("employees %s" % employee.user_id.id)
@@ -542,6 +546,12 @@ class AccountAnalyticLine(models.Model):
                 dict_department[employee.user_id.id]=employee.department_id.id
                 dict_approver[employee.user_id.id]=employee.approver.id
             for str_date in all_work_day:
+                if first_working_day:
+                    if first_working_day > datetime.strptime(str_date, "%Y-%m-%d").date():
+                        continue
+                if last_working_day:
+                    if last_working_day < datetime.strptime(str_date, "%Y-%m-%d").date():
+                        continue
                 dict_all[employee.user_id.id][str(str_date)] = 1
         # 从所有的伪造数据中删除已有的真数据
         for timesheet in list_timesheet:
@@ -549,6 +559,7 @@ class AccountAnalyticLine(models.Model):
                 continue
             _logger.info("timesheet.date %s" % timesheet.date)
             dict_all[timesheet.user_id.id].pop(str(timesheet.date),None)
+
         # 对应的项目字段
         project = self.env['project.project'].search(
             [('analytic_account_id.id', '!=', 0)],limit=1)

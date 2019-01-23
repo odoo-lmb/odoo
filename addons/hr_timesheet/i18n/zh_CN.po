@@ -633,3 +633,9 @@ msgstr "团队工时表（待审批）"
 #: model:ir.ui.menu,name:hr_timesheet.my_timesheet_menu_activity
 msgid "Team Timesheet(Approved)"
 msgstr "团队工时表（已审批）"
+
+#. module: hr_timesheet
+#: model:ir.ui.menu,name:menu_timesheets_sanity_check_timesheet
+#: model:ir.ui.menu,name:menu_timesheets_sanity_check
+msgid "Sanity_check"
+msgstr "核查工时"
