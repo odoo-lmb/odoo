@@ -140,8 +140,8 @@
                                         <field name="company_id" groups="base.group_multi_company"/>
                                         <field name="user_id" string="Related User"/>
                                         <field name="first_working_day1" string="入职日期1"/>
-                                        <field name="first_working_day2" string="入职日期2"/>
                                         <field name="last_working_day1" string="离职日期1"/>
+                                        <field name="first_working_day2" string="入职日期2"/>
                                         <field name="last_working_day2" string="离职日期2"/>
                                     </group>
                                 </group>
