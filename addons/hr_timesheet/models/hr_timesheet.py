@@ -59,9 +59,7 @@ class AccountAnalyticLine(models.Model):
                                string="is USER self",)
     sanity_fail_reason = fields.Char(
         'check timesheet',
-        compute='_check_timesheet',
-        readonly=True,
-        store=False)
+        store=True)
     is_fake_data = fields.Boolean(string="is fake data", default=0)
 
     @api.onchange('project_id')
@@ -402,39 +400,34 @@ class AccountAnalyticLine(models.Model):
             raise UserError(_('当月份的工时已经被锁，不能再进行修改'))
 
 
-
-    @api.depends('employee_id')
     def _check_timesheet(self):
         now = datetime.now()
-        last_week = [datetime.strftime(
-            now - timedelta(days=now.weekday() + i), '%Y-%m-%d') for i in
-                                    range(7)]
-        for timesheet in self:
-            timesheet.sanity_fail_reason = ""
-            rst = self.env['account.analytic.line'].search(
-                [('user_id', '=', timesheet.user_id.id),('date','=',timesheet.date)])
-            count_amount = 0
-            for temp in rst:
-                count_amount += temp.unit_amount
-            if not timesheet.is_fake_data:
-                if count_amount < 8:
-                    timesheet.sanity_fail_reason = "当日填写时长不够"
-                if int(timesheet.unit_amount) != timesheet.unit_amount:
-                    timesheet.sanity_fail_reason += " 该工时的时长为非整数"
-                if timesheet.is_approval != 1:
-                    timesheet.sanity_fail_reason += " 该工时处于未通过状态"
-                if timesheet.project_id:
-                    list_task = self.env['project.task'].search(
-                        [('project_id', '=', timesheet.project_id.id)])
-                    list_task_id = [task.id for task in list_task]
-                    if list_task and timesheet.task_id.id not in list_task_id:
-                        timesheet.sanity_fail_reason += " 请选择正确的任务"
-                check_date = self.env['timesheet.special_date'].search(
-                    [('date', '=', timesheet.date)], limit=1)
-                if check_date.options == NOT_WORK:
-                    timesheet.sanity_fail_reason += '这一天是非工作日，暂不需要填写工时'
-            else:
-                timesheet.sanity_fail_reason += '当日未填写工时'
+        sanity_fail_reason = ""
+        rst = self.env['account.analytic.line'].search(
+            [('user_id', '=', self.user_id.id),('date','=',self.date)])
+        count_amount = 0
+        for temp in rst:
+            count_amount += temp.unit_amount
+        if not self.is_fake_data:
+            if count_amount < 8:
+               sanity_fail_reason = "当日填写时长不够"
+            if int(self.unit_amount) != self.unit_amount:
+                sanity_fail_reason += " 该工时的时长为非整数"
+            if self.is_approval != 1:
+                sanity_fail_reason += " 该工时处于未通过状态"
+            if self.project_id:
+                list_task = self.env['project.task'].search(
+                    [('project_id', '=', self.project_id.id)])
+                list_task_id = [task.id for task in list_task]
+                if list_task and self.task_id.id not in list_task_id:
+                    sanity_fail_reason += " 请选择正确的任务"
+            check_date = self.env['timesheet.special_date'].search(
+                [('date', '=', self.date)], limit=1)
+            if check_date.options == NOT_WORK:
+                sanity_fail_reason += '这一天是非工作日，暂不需要填写工时'
+        else:
+            sanity_fail_reason += '当日未填写工时'
+        return sanity_fail_reason
 
 
 
@@ -590,6 +583,21 @@ class AccountAnalyticLine(models.Model):
 
         if values:
             self.batch_insert('account_analytic_line',insert_field,values)
+        list_timesheet = self.env['account.analytic.line'].search(
+            [('date', '>=', first_day), ('date', '<=', last_day), '|',
+             ('user_id', '=', self.env.user.id), '|',
+             ('approver.user_id', '=', self.env.user.id), '|',
+             ("department_id.manager_id.user_id", '=', self.env.user.id), '|',
+             ('department_id.parent_id.manager_id.user_id', '=',
+              self.env.user.id), (
+                 'department_id.parent_id.parent_id.manager_id.user_id', '=',
+                 self.env.user.id)])
+
+        for timesheet in list_timesheet:
+            self.update_data('account_analytic_line', timesheet._check_timesheet(), timesheet.id)
+
+
+
 
     def batch_insert(self, model, fileds, values, context=None):
         # 批量插入到数据库
@@ -599,4 +607,13 @@ class AccountAnalyticLine(models.Model):
         sql_values = ",".join(values)
         sql = "INSERT INTO %s (%s) VALUES %s;" % (
             model, sql_fileds, sql_values)
+        cr.execute(sql)
+
+    def update_data(self, model,  values,id ):
+        # 批量插入到数据库
+        cr = self.env.cr
+        vals_length = len(values)
+        fileds = "sanity_fail_reason"
+        sql = "UPDATE %s SET %s='%s' WHERE id=%s;" % (
+            model, fileds, values,id )
         cr.execute(sql)
