@@ -478,22 +478,24 @@ class AccountAnalyticLine(models.Model):
                          range(int(now.isoweekday()))]
             list_date = this_week
             first_day = date.strftime(date.today()-timedelta(days=now.weekday()), '%Y-%m-%d')
-            last_day= date.strftime(date.today(), '%Y-%m-%d')
+            last_day= date.strftime(date.today()-timedelta(days=now.weekday())+timedelta(days=6), '%Y-%m-%d')
         elif flag == 'this_month':
             this_month_first_day = date(now.year, now.month, 1)
+            this_month_end = datetime(now.year, now.month + 1,
+                                               1) - timedelta(days=1).date()
             this_month = [
                 this_month_first_day + timedelta(i) for i in
-                         range(int((date.today()-this_month_first_day).days))]
+                         range(int((this_month_end-this_month_first_day).days)+1)]
             list_date = this_month
             first_day = date.strftime(
                 this_month_first_day, '%Y-%m-%d')
-            last_day = date.strftime(date.today(), '%Y-%m-%d')
+            last_day = date.strftime(this_month_end, '%Y-%m-%d')
 
         elif flag == 'last_month':
             last_month_last_day = date(now.year, now.month, 1) - timedelta(days=1)
             last_month_first_day=date(last_month_last_day.year, last_month_last_day.month, 1)
             last_month=[last_month_first_day + timedelta(days=i) for i in
-                         range((last_month_last_day-last_month_first_day).days)]
+                         range(int((last_month_last_day-last_month_first_day).days)+1)]
             list_date = last_month
             first_day = last_month_first_day
             last_day = last_month_last_day
