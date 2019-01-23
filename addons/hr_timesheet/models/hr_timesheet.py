@@ -209,6 +209,12 @@ class AccountAnalyticLine(models.Model):
         self.filtered(lambda t: t.project_id)._timesheet_postprocess(values)
         return result
 
+    @api.multi
+    def unlink(self):
+        for timesheet in self:
+            values = {'date': str(timesheet.date)}
+            self._check_timesheet_lock(values)
+
     @api.model
     def fields_view_get(
             self,
