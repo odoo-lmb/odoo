@@ -592,3 +592,9 @@ msgstr ""
 #: model:ir.ui.menu,name:hr_timesheet.my_timesheet_menu_activity
 msgid "Team Timesheet(Approved)"
 msgstr ""
+
+#. module: hr_timesheet
+#: model:ir.ui.menu,name:menu_timesheets_sanity_check_timesheet
+#: model:ir.ui.menu,name:menu_timesheets_sanity_check
+msgid "Sanity_check"
+msgstr ""

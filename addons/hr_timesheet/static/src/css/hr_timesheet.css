@@ -11,7 +11,7 @@
     width: 3%;
   }
 .hr_timesheet_line_my_tree th:nth-child(3){
-    width: 100px;
+    width: 115px;
   }
 .hr_timesheet_line_my_tree th:nth-child(4){
      width: 3%;
@@ -53,7 +53,7 @@
     width: 2%;
   }
 .hr_timesheet_line_my_new_tree th:nth-child(2){
-    width: 100px;
+    width: 115px;
   }
 .hr_timesheet_line_my_new_tree th:nth-child(3){
      width: 3%;
@@ -102,7 +102,7 @@
     width: 2%;
   }
 .hr_timesheet_line_tree th:nth-child(2){
-    width: 100px;
+    width: 115px;
   }
 .hr_timesheet_line_tree th:nth-child(3){
      width: 3%;
