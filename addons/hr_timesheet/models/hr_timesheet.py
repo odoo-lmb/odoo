@@ -214,6 +214,7 @@ class AccountAnalyticLine(models.Model):
         for timesheet in self:
             values = {'date': str(timesheet.date)}
             self._check_timesheet_lock(values)
+        return super(AccountAnalyticLine, self).unlink()
 
     @api.model
     def fields_view_get(
