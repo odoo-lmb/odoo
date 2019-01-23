@@ -474,15 +474,15 @@ class AccountAnalyticLine(models.Model):
 
         elif flag == 'this_week':
             this_week = [
-                now - timedelta(i) for i in
-                         range(int(now.isoweekday()))]
+                date.today() - timedelta(days=now.weekday()) + timedelta(days=i) for i in
+                         range(7)]
             list_date = this_week
             first_day = date.strftime(date.today()-timedelta(days=now.weekday()), '%Y-%m-%d')
             last_day= date.strftime(date.today()-timedelta(days=now.weekday())+timedelta(days=6), '%Y-%m-%d')
         elif flag == 'this_month':
             this_month_first_day = date(now.year, now.month, 1)
-            this_month_end = datetime(now.year, now.month + 1,
-                                               1) - timedelta(days=1).date()
+            this_month_end = (datetime(now.year, now.month + 1,
+                                               1) - timedelta(days=1)).date()
             this_month = [
                 this_month_first_day + timedelta(i) for i in
                          range(int((this_month_end-this_month_first_day).days)+1)]
@@ -580,6 +580,8 @@ class AccountAnalyticLine(models.Model):
                     approver_id = dict_approver[employee_uid]
                 else:
                     approver_id = my_employee_id.id
+                if not dict_department[employee_uid]:
+                    continue
 
                 values.append(
                     "('%s','%s','%s','%s','%s','%s','%s',1,  '%s',1,True)" % (
