@@ -57,7 +57,7 @@
             <field name="domain">[('sanity_fail_reason', 'not in', ['',False]),
                 ('date','&gt;=', time.strftime('%Y-%m-01')),('date','&lt;=',  (context_today() + relativedelta(months=1)).strftime('%Y-%m-01')),
                 '|', '|',('user_id', '=',uid),('approver.user_id', '=', uid), '|',("approver.approver.user_id",'=',uid),
-                '|',('approver.approver.approver.user_id','=',uid),'|',('approver.approver.approver.approver..user_id','=',uid),
+                '|',('approver.approver.approver.user_id','=',uid),'|',('approver.approver.approver.approver.user_id','=',uid),
                 ('approver.approver.approver.approver.approver.user_id','=',uid)]</field>
              <field name="context">{
                 "search_default_week":1,
