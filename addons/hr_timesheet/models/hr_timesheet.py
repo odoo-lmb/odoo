@@ -424,6 +424,8 @@ class AccountAnalyticLine(models.Model):
                     sanity_fail_reason += " 请选择正确的任务"
             check_date = self.env['timesheet.special_date'].search(
                 [('date', '=', self.date)], limit=1)
+            if check_date.options != NEED_WORK and self.date.weekday()>5:
+                sanity_fail_reason += '这一天是非工作日，暂不需要填写工时'
             if check_date.options == NOT_WORK:
                 sanity_fail_reason += '这一天是非工作日，暂不需要填写工时'
         else:
