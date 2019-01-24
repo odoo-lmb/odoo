@@ -8,7 +8,7 @@
     width: 2%;
   }
 .hr_timesheet_line_my_tree th:nth-child(2){
-    width: 3%;
+    width: 45px;
   }
 .hr_timesheet_line_my_tree th:nth-child(3){
     width: 115px;
@@ -17,10 +17,10 @@
      width: 3%;
   }
 .hr_timesheet_line_my_tree th:nth-child(5){
-     width: 4%;
+     width: 65px;
   }
 .hr_timesheet_line_my_tree th:nth-child(6){
-   width: 7%;
+   width: 10%;
   }
 .hr_timesheet_line_my_tree th:nth-child(7){
    width: 7%;
@@ -59,10 +59,10 @@
      width: 3%;
   }
 .hr_timesheet_line_my_new_tree th:nth-child(4){
-     width: 4%;
+     width:  65px;
   }
 .hr_timesheet_line_my_new_tree th:nth-child(5){
-   width: 7%;
+   width: 10%;
   }
 .hr_timesheet_line_my_new_tree th:nth-child(6){
    width: 7%;
@@ -108,10 +108,10 @@
      width: 3%;
   }
 .hr_timesheet_line_tree th:nth-child(4){
-     width: 4%;
+     width:  65px;
   }
 .hr_timesheet_line_tree th:nth-child(5){
-   width: 7%;
+   width: 10%;
   }
 .hr_timesheet_line_tree th:nth-child(6){
    width: 7%;
