@@ -550,9 +550,16 @@ class AccountAnalyticLine(models.Model):
             for str_date in all_work_day:
                 if first_working_day:
                     if first_working_day > datetime.strptime(str_date, "%Y-%m-%d").date():
+                        db_rst=self.env['account.analytic.line'].search(
+                            [('date','=',datetime.strptime(str_date, "%Y-%m-%d").date()),('user_id','=',employee.user_id.id)])
+                        if db_rst:
+                            db_rst.unlink()
                         continue
                 if last_working_day:
                     if last_working_day < datetime.strptime(str_date, "%Y-%m-%d").date():
+                        db_rst=self.env['account.analytic.line'].search([('date', '=', datetime.strptime(str_date, "%Y-%m-%d").date()),('user_id', '=', employee.user_id.id)])
+                        if db_rst:
+                            db_rst.unlink()
                         continue
                 dict_all[employee.user_id.id][str(str_date)] = 1
         # 从所有的伪造数据中删除已有的真数据
