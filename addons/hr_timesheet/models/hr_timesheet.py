@@ -502,16 +502,7 @@ class AccountAnalyticLine(models.Model):
             self.env.user.id),(
             'approver.approver.approver.approver.approver.user_id', '=',
             self.env.user.id) ])
-        list_timesheet = self.env['account.analytic.line'].search(
-            [('date','>=',first_day),('date','<=',last_day),'|',('user_id', '=', self.env.user.id),'|',
-             ('approver.user_id', '=', self.env.user.id), '|',
-             ("approver.approver.user_id", '=', self.env.user.id), '|',
-             ('approver.approver.approver.user_id', '=', self.env.user.id), '|',
-             (
-                 'approver.approver.approver.approver.user_id', '=',
-                 self.env.user.id), (
-                 'approver.approver.approver.approver.approver.user_id', '=',
-                 self.env.user.id)])
+
         weekday = [i for i in list_date if i.isoweekday() <6] # 所有工作日
         weekend = [i for i in list_date if i.isoweekday() > 5] # 所有周末
 
@@ -563,6 +554,16 @@ class AccountAnalyticLine(models.Model):
                         continue
                 dict_all[employee.user_id.id][str(str_date)] = 1
         # 从所有的伪造数据中删除已有的真数据
+        list_timesheet = self.env['account.analytic.line'].search(
+            [('date', '>=', first_day), ('date', '<=', last_day), '|', ('user_id', '=', self.env.user.id), '|',
+             ('approver.user_id', '=', self.env.user.id), '|',
+             ("approver.approver.user_id", '=', self.env.user.id), '|',
+             ('approver.approver.approver.user_id', '=', self.env.user.id), '|',
+             (
+                 'approver.approver.approver.approver.user_id', '=',
+                 self.env.user.id), (
+                 'approver.approver.approver.approver.approver.user_id', '=',
+                 self.env.user.id)])
         for timesheet in list_timesheet:
             if not dict_all.get(timesheet.user_id.id):
                 continue
