@@ -496,17 +496,22 @@ class AccountAnalyticLine(models.Model):
         list_employee = self.env['hr.employee'].search(
             [ '|',('user_id', '=', self.env.user.id),'|',
             ('approver.user_id', '=', self.env.user.id),'|',
-            ("department_id.manager_id.user_id", '=', self.env.user.id),'|',
-            ('department_id.parent_id.manager_id.user_id', '=', self.env.user.id),(
-            'department_id.parent_id.parent_id.manager_id.user_id', '=',
+            ("approver.approver.user_id", '=', self.env.user.id),'|',
+            ('approver.approver.approver.user_id', '=', self.env.user.id),'|',(
+            'approver.approver.approver.approver.user_id', '=',
+            self.env.user.id),(
+            'approver.approver.approver.approver.approver.user_id', '=',
             self.env.user.id) ])
         list_timesheet = self.env['account.analytic.line'].search(
             [('date','>=',first_day),('date','<=',last_day),'|',('user_id', '=', self.env.user.id),'|',
-            ('approver.user_id', '=', self.env.user.id),'|',
-            ("department_id.manager_id.user_id", '=', self.env.user.id),'|',
-            ('department_id.parent_id.manager_id.user_id', '=', self.env.user.id),(
-            'department_id.parent_id.parent_id.manager_id.user_id', '=',
-            self.env.user.id) ])
+             ('approver.user_id', '=', self.env.user.id), '|',
+             ("approver.approver.user_id", '=', self.env.user.id), '|',
+             ('approver.approver.approver.user_id', '=', self.env.user.id), '|',
+             (
+                 'approver.approver.approver.approver.user_id', '=',
+                 self.env.user.id), (
+                 'approver.approver.approver.approver.approver.user_id', '=',
+                 self.env.user.id)])
         weekday = [i for i in list_date if i.isoweekday() <6] # 所有工作日
         weekend = [i for i in list_date if i.isoweekday() > 5] # 所有周末
 
