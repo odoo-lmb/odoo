@@ -600,10 +600,12 @@ class AccountAnalyticLine(models.Model):
             [('date', '>=', first_day), ('date', '<=', last_day), '|',
              ('user_id', '=', self.env.user.id), '|',
              ('approver.user_id', '=', self.env.user.id), '|',
-             ("department_id.manager_id.user_id", '=', self.env.user.id), '|',
-             ('department_id.parent_id.manager_id.user_id', '=',
-              self.env.user.id), (
-                 'department_id.parent_id.parent_id.manager_id.user_id', '=',
+             ("approver.approver.user_id", '=', self.env.user.id), '|',
+             ('approver.approver.approver.user_id', '=', self.env.user.id), '|',
+             (
+                 'approver.approver.approver.approver.user_id', '=',
+                 self.env.user.id), (
+                 'approver.approver.approver.approver.approver.user_id', '=',
                  self.env.user.id)])
 
         for timesheet in list_timesheet:
