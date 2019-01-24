@@ -59,6 +59,7 @@ class AccountAnalyticLine(models.Model):
                                string="is USER self",)
     sanity_fail_reason = fields.Char(
         'check timesheet',
+        default='',
         store=True)
     is_fake_data = fields.Boolean(string="is fake data", default=0)
 
