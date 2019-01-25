@@ -415,10 +415,12 @@ class AccountAnalyticLine(models.Model):
         for timesheet in records:
             approver_id = timesheet.approver.id
             timesheet_id = timesheet.id
+            if timesheet.is_fake_data:
+                raise UserError(_('当前工时:%s 是检查生成数据不能通过' % (timesheet_id)))
             if not approver_id:
                 raise UserError(_('当前工时:%s 没有设置审批员' % (timesheet_id)))
             if current_user_employee_id != approver_id:
-                raise UserError(_('当前工时:%s的审批人不是当前用户' % (timesheet_id)))
+                raise UserError(_('当前工时:%s的审批人不是你' % (timesheet_id)))
             timesheet.write({'is_approval': 1})
 
 
