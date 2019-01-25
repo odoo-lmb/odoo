@@ -560,7 +560,7 @@ class AccountAnalyticLine(models.Model):
                 dict_all[employee.user_id.id][str(str_date)] = 1
         # 从所有的伪造数据中删除已有的真数据
         list_timesheet = self.env['account.analytic.line'].search(
-            [('date', '>=', first_day), ('date', '<=', last_day),'|',("employee_id.approver.user_id",'=',self.env.user.uid), '|', ('user_id', '=', self.env.user.id), '|',
+            [('date', '>=', first_day), ('date', '<=', last_day),'|',("employee_id.approver.user_id",'=',self.env.user.id), '|', ('user_id', '=', self.env.user.id), '|',
              ('approver.user_id', '=', self.env.user.id), '|',
              ("approver.approver.user_id", '=', self.env.user.id), '|',
              ('approver.approver.approver.user_id', '=', self.env.user.id), '|',
@@ -603,7 +603,7 @@ class AccountAnalyticLine(models.Model):
         if values:
             self.batch_insert('account_analytic_line',insert_field,values)
         list_timesheet = self.env['account.analytic.line'].search(
-            [('date', '>=', first_day), ('date', '<=', last_day), '|',("employee_id.approver.user_id",'=',self.env.user.uid),'|',
+            [('date', '>=', first_day), ('date', '<=', last_day), '|',("employee_id.approver.user_id",'=',self.env.user.id),'|',
              ('user_id', '=', self.env.user.id), '|',
              ('approver.user_id', '=', self.env.user.id), '|',
              ("approver.approver.user_id", '=', self.env.user.id), '|',
