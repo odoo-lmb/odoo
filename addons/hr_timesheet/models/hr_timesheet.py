@@ -403,6 +403,25 @@ class AccountAnalyticLine(models.Model):
             raise UserError(_('当月份的工时已经被锁，不能再进行修改'))
 
 
+    def batch_timesheet_approval(self, records):
+        """
+        批量审核通过
+        :param records: 选中的工时记录对象
+        :return:
+        """
+        current_user_employee_id = self.env.user.employee_ids.id
+        if not current_user_employee_id:
+            raise UserError(_('当前用户没有员工信息'))
+        for timesheet in records:
+            approver_id = timesheet.approver.id
+            timesheet_id = timesheet.id
+            if not approver_id:
+                raise UserError(_('当前工时:%s 没有设置审批员' % (timesheet_id)))
+            if current_user_employee_id != approver_id:
+                raise UserError(_('当前工时:%s的审批人不是当前用户' % (timesheet_id)))
+            timesheet.write({'is_approval': 1})
+
+
     def _check_timesheet(self):
         now = datetime.now()
         sanity_fail_reason = ""
