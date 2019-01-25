@@ -20,6 +20,12 @@ NOT_WORK = 2
 LOCK_OPTION = 1
 SPECIAL_DATE_ERROR = "这一天是非工作日，暂不需要填写工时"
 
+ERROR_REASON_TIME_NOT_ENOUGH = 1
+ERROR_REASON_NOT_INTER =2
+ERROR_REASON_NOT_PASS=3
+ERROR_REASON_ERROR_TASK=4
+ERROR_REASON_ERROR_TIME=5
+
 
 class AccountAnalyticLine(models.Model):
     _inherit = 'account.analytic.line'
@@ -432,31 +438,38 @@ class AccountAnalyticLine(models.Model):
         count_amount = 0
         for temp in rst:
             count_amount += temp.unit_amount
+        error_type = []
         if not self.is_fake_data:
             if count_amount < 8:
                sanity_fail_reason = "当日填写时长不够"
+               error_type.append(ERROR_REASON_TIME_NOT_ENOUGH)
             if int(self.unit_amount) != self.unit_amount:
                 sanity_fail_reason += " 该工时的时长为非整数"
+                error_type.append(ERROR_REASON_NOT_INTER)
             if self.is_approval != 1:
                 sanity_fail_reason += " 该工时处于未通过状态"
+                error_type.append(ERROR_REASON_NOT_PASS)
             if self.project_id:
                 list_task = self.env['project.task'].search(
                     [('project_id', '=', self.project_id.id)])
                 list_task_id = [task.id for task in list_task]
                 if list_task and self.task_id.id not in list_task_id:
                     sanity_fail_reason += " 请选择正确的任务"
+                    error_type.append(ERROR_REASON_ERROR_TASK)
             check_date = self.env['timesheet.special_date'].search(
                 [('date', '=', self.date)], limit=1)
             if self.date.weekday()>4:
                 if check_date.options == NEED_WORK:
                     sanity_fail_reason += ''
                 else:
-                    sanity_fail_reason += '这一天是非工作日，暂不需要填写工时'
+                    sanity_fail_reason += '非工作日不需填写'
+                    error_type.append(ERROR_REASON_ERROR_TIME)
             if check_date.options == NOT_WORK:
-                sanity_fail_reason += '这一天是非工作日，暂不需要填写工时'
+                sanity_fail_reason += '非工作日不需填写'
+                error_type.append(ERROR_REASON_ERROR_TIME)
         else:
             sanity_fail_reason += '当日未填写工时'
-        return sanity_fail_reason
+        return sanity_fail_reason,error_type
 
 
 
@@ -638,8 +651,15 @@ class AccountAnalyticLine(models.Model):
                  self.env.user.id)])
 
         for timesheet in list_timesheet:
-            self.update_data('account_analytic_line', timesheet._check_timesheet(), timesheet.id)
-
+                str_fail_reason, list_fail_type = timesheet._check_timesheet()
+                self.update_data('account_analytic_line', 'sanity_fail_reason',str_fail_reason,
+                     timesheet.id)
+                if not list_fail_type:
+                    continue
+                elif (ERROR_REASON_NOT_INTER in list_fail_type) or (ERROR_REASON_ERROR_TASK in list_fail_type) or (ERROR_REASON_ERROR_TIME in list_fail_type):
+                    self.update_data('account_analytic_line',
+                                     'is_approval', 2,
+                                     timesheet.id)
 
 
 
@@ -654,12 +674,10 @@ class AccountAnalyticLine(models.Model):
         cr.execute(sql)
         cr.commit()
 
-    def update_data(self, model,  values,id ):
+    def update_data(self, model,filed,values,id ):
         # 批量插入到数据库
         cr = self.env.cr
-        vals_length = len(values)
-        fileds = "sanity_fail_reason"
         sql = "UPDATE %s SET %s='%s' WHERE id=%s;" % (
-            model, fileds, values,id )
+            model, filed, values,id)
         cr.execute(sql)
         cr.commit()
