@@ -195,9 +195,11 @@ class AccountAnalyticLine(models.Model):
     @api.multi
     def write(self, values):
         self._sanity_fail_reason_type(values)
-        self._check_special_date(values)
-        self._check_project_task(values)
-        self._check_timesheet_lock(values)
+        # 如果不是驳回,则需要条件限制
+        if values.get('is_approval') != 2:
+            self._check_special_date(values)
+            self._check_project_task(values)
+            self._check_timesheet_lock(values)
 
         if self.employee_id.user_id.id == self.env.user.id:
             if self.is_approval == 2:
