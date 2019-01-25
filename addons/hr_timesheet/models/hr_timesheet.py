@@ -598,12 +598,12 @@ class AccountAnalyticLine(models.Model):
         list_timesheet = self.env['account.analytic.line'].search(
             [('date', '>=', first_day), ('date', '<=', last_day),'|',("employee_id.approver.user_id",'=',self.env.user.id), '|', ('user_id', '=', self.env.user.id), '|',
              ('approver.user_id', '=', self.env.user.id), '|',
-             ("approver.approver.user_id", '=', self.env.user.id), '|',
-             ('approver.approver.approver.user_id', '=', self.env.user.id), '|',
+             ("employee_id.approver.approver.user_id", '=', self.env.user.id), '|',
+             ('employee_id.approver.approver.approver.user_id', '=', self.env.user.id), '|',
              (
-                 'approver.approver.approver.approver.user_id', '=',
+                 'employee_id.approver.approver.approver.approver.user_id', '=',
                  self.env.user.id), (
-                 'approver.approver.approver.approver.approver.user_id', '=',
+                 'employee_id.approver.approver.approver.approver.approver.user_id', '=',
                  self.env.user.id)])
         for timesheet in list_timesheet:
             if not dict_all.get(timesheet.user_id.id):
