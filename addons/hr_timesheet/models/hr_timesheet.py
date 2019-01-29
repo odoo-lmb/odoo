@@ -26,6 +26,8 @@ ERROR_REASON_NOT_PASS=3
 ERROR_REASON_ERROR_TASK=4
 ERROR_REASON_ERROR_TIME=5
 
+TIMESHEET_TYPE = [(1, "日常工作"), (2, "调休"), (3, "年假"), (4, "病假"), (5, "事假"), (6, "婚假"), (7, "产假"), (8, "陪产假"), (9, "其他假期")]
+
 
 class AccountAnalyticLine(models.Model):
     _inherit = 'account.analytic.line'
@@ -53,7 +55,7 @@ class AccountAnalyticLine(models.Model):
         store=True,
         compute_sudo=True)
     timesheet_type = fields.Selection(
-        [(1, "日常工作"), (2, "调休"), (3, "年假"), (4, "病假"), (5, "事假"), (6, "婚假"), (7, "产假"), (8, "陪产假"), (9, "其他假期")], string='类型',
+        TIMESHEET_TYPE, string='类型',
         track_visibility='always',
         copy=False, store=True, default=1)
     is_approval = fields.Selection(
@@ -68,6 +70,7 @@ class AccountAnalyticLine(models.Model):
         default='',
         store=True)
     is_fake_data = fields.Boolean(string="is fake data", default=0)
+    is_auto_create = fields.Boolean(string="is select auto create data", default=0)
 
     @api.onchange('project_id')
     def onchange_project_id(self):

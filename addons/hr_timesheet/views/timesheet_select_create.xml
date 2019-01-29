@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <!-- actions opening views on models -->
+        <record model="ir.actions.act_window" id="timesheet_select_create_action_window">
+            <field name="name">选创工时</field>
+            <field name="res_model">timesheet.select_create</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record model="ir.ui.view" id="timesheet_select_create_view_tree">
+            <field name="name">timesheet.select_create.view_tree</field>
+            <field name="model">timesheet.select_create</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree editable="top" string="test" import="false">
+                    <field name="department_id"/>
+                    <field name="employee_id"/>
+                    <field name="project_id"/>
+                    <field name="timesheet_type"/>
+                    <field name="task_id"/>
+                    <field name="date"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="test_lock">
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="timesheet_select_create_view_tree"/>
+            <field name="act_window_id" ref="timesheet_select_create_action_window"/>
+        </record>
+
+
+        <menuitem id="hr_timesheet_lock_menu" name="选创工时" parent="timesheet_menu_root"
+                  groups="group_timesheet_manager" action="timesheet_select_create_action_window" sequence="99"/>
+
+    </data>
+
+
+
+</odoo>
