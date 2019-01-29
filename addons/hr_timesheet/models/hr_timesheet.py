@@ -71,6 +71,11 @@ class AccountAnalyticLine(models.Model):
         store=True)
     is_fake_data = fields.Boolean(string="is fake data", default=0)
     is_auto_create = fields.Boolean(string="is select auto create data", default=0)
+    total_day_amount = fields.Integer(
+        compute='_compute_amount',
+        track_visibility='always',
+        store=False)
+
 
     @api.onchange('project_id')
     def onchange_project_id(self):
@@ -96,6 +101,21 @@ class AccountAnalyticLine(models.Model):
     def _compute_department_id(self):
         for line in self:
             line.department_id = line.employee_id.department_id
+
+    @api.depends('unit_amount')
+    def _compute_amount(self):
+        for line in self:
+            rst = self.env['account.analytic.line'].search(
+                [('user_id', '=', line.user_id.id), ('date', '=', line.date)])
+            count_amount = 0
+            for temp in rst:
+                if temp.id == line.id:
+                    count_amount += int(line.unit_amount)
+                else:
+                    count_amount += int(temp.unit_amount)
+            line.total_day_amount = count_amount
+
+
 
     @api.depends('employee_id')
     def _compute_myself(self):
@@ -328,8 +348,18 @@ class AccountAnalyticLine(models.Model):
                 amount = -timesheet.unit_amount * cost
                 amount_converted = timesheet.employee_id.currency_id._convert(
                     amount, timesheet.account_id.currency_id, self.env.user.company_id, timesheet.date)
+                rst = self.env['account.analytic.line'].search(
+                    [('user_id', '=', self.user_id.id),
+                     ('date', '=', self.date)])
+                count_amount = 0
+                for temp in rst:
+                    if temp.id == timesheet.id:
+                        count_amount += int(timesheet.unit_amount)
+                    else:
+                        count_amount += int(temp.unit_amount)
                 result[timesheet.id].update({
                     'amount': amount_converted,
+                    'total_day_amount':count_amount,
                 })
         return result
 

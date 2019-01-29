@@ -48,7 +48,7 @@
             <field name="name">account.analytic.line.tree.hr_timesheet</field>
             <field name="model">account.analytic.line</field>
             <field name="arch" type="xml">
-                <tree editable="top" string="Timesheet Activities" import="false" create="false" class="hr_timesheet_line_tree">
+                <tree editable="top" string="Timesheet Activities" import="false" create="false" class="hr_timesheet_line_tree" decoration-danger="total_day_amount&lt;8" >
                     <field name="date" readonly="1" />
                      <field name="unit_amount" readonly="1"  string="小时数" />
                        <field name="timesheet_type"  readonly="1" />
@@ -57,6 +57,7 @@
                     <field name="name"  readonly="1"  string="工作日报简述" />
                     <field name="approver" readonly="1" />
                     <field name="is_approval" readonly="1" />
+                    <field name="total_day_amount" invisible="1" />
 
                 </tree>
             </field>
@@ -207,15 +208,16 @@
             <field name="name">account.analytic.line.tree.hr_my_new_timesheet</field>
             <field name="model">account.analytic.line</field>
             <field name="arch" type="xml">
-                <tree editable="top" string="Timesheet Activities" import="false" class="hr_timesheet_line_my_new_tree" >
+                <tree editable="top" string="Timesheet Activities" import="false" class="hr_timesheet_line_my_new_tree"  decoration-danger="total_day_amount&lt;8" >
                     <field name="date" />
-                     <field name="unit_amount"  string="小时数"   />
-                        <field name="timesheet_type" />
+                    <field name="unit_amount"  string="小时数"   />
+                    <field name="timesheet_type" />
                     <field name="project_id" required="1" />
                     <field name="task_id" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" />
                     <field name="name" string="工作日报简述" />
                      <field name="approver" readonly="1" />
                     <field name="is_approval" readonly="1" />
+                       <field name="total_day_amount" invisible="1" interval="1"/>
                 </tree>
             </field>
         </record>
@@ -276,6 +278,7 @@
                     <field name="project_id" />
                     <field name="task_id"  context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]"/>
                     <field name="unit_amount"/>
+                    <field name="total_day_amount" />
                     <templates>
                         <t t-name="kanban-box">
                             <div t-attf-class="oe_kanban_global_click">
@@ -376,6 +379,7 @@
                                <field name="employee_id" readonly="1" />
                                 <field name="date" readonly="1" />
                                  <field name="unit_amount" widget="timesheet_uom" readonly="1"  />
+                                <field name="total_day_amount" />
                                   <field name="timesheet_type" readonly="1" />
                                 <field name="project_id" readonly="1" required="1" />
                                 <field name="task_id" readonly="1" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" />
@@ -394,7 +398,7 @@
         <field name="name">account.analytic.line.tree.hr_my_timesheet</field>
         <field name="model">account.analytic.line</field>
         <field name="arch" type="xml">
-            <tree editable="top" string="Timesheet Activities" import="false" create="false" class="hr_timesheet_line_my_tree">
+            <tree editable="top" string="Timesheet Activities" import="false" create="false" class="hr_timesheet_line_my_tree"  decoration-danger="total_day_amount&lt;8" >
                <field name="employee_id" readonly="1" />
                 <field name="date" readonly="1"   />
                  <field name="unit_amount" string="小时数" readonly="1"  />
@@ -404,6 +408,7 @@
                 <field name="name" string="工作日报简述" readonly="1" />
                  <field name="approver" readonly="1" />
                 <field name="is_approval"/>
+                   <field name="total_day_amount" invisible="1" />
             </tree>
         </field>
     </record>
@@ -419,6 +424,7 @@
                 <field name="project_id" readonly="1" />
                 <field name="task_id" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" readonly="1" />
                  <field name="unit_amount" string="小时数"  readonly="1"  />
+                <field name="total_day_amount" />
                  <field name="approver" readonly="1" />
                  <field name="is_approval" />
                 <templates>
