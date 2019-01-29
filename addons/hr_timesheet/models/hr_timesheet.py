@@ -187,6 +187,7 @@ class AccountAnalyticLine(models.Model):
                 ts_user_id = values['user_id']
             else:
                 ts_user_id = self._default_user()
+
             values['employee_id'] = self.env['hr.employee'].search(
                 [('user_id', '=', ts_user_id)], limit=1).id
             if not values.get('approver'):

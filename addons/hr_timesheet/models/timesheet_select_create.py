@@ -93,6 +93,7 @@ class TimesheetSelectCreate(models.Model):
             # 创建工时那边代码不需要员工id的时候才会去找审批人
             values['employee_id'] = False
             values['user_id'] = employee.user_id.id
+            values['approver'] = employee.approver.id
 
             for work_day in all_work_day:
                 list_record = self.env['account.analytic.line'].search([('employee_id', '=', employee.id),
