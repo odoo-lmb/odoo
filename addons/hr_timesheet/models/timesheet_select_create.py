@@ -78,7 +78,7 @@ class TimesheetSelectCreate(models.Model):
         values['is_approval'] = 1
         values['is_auto_create'] = 1
 
-        date_type = self._check_date_type(date)
+        date = self._change_date_format(date)
 
         if department_id and not employee_id:
             list_employee = self.env['hr.employee'].search([('department_id', '=', department_id)])
@@ -124,13 +124,22 @@ class TimesheetSelectCreate(models.Model):
             return [date_str]
 
         time_array = time.strptime(date_str, "%Y-%m")
-        last_month_last_day = date(time_array.tm_year, time_array.tm_mon, 1) - timedelta(days=1)
-        last_month_first_day = date(last_month_last_day.year, last_month_last_day.month, 1)
-        last_month = [last_month_first_day + timedelta(days=i) for i in
-                      range(int((last_month_last_day - last_month_first_day).days) + 1)]
-        list_date = last_month
-        first_day = last_month_first_day
-        last_day = last_month_last_day
+        this_month_first_day = date(time_array.tm_year, time_array.tm_mon, 1)
+        if time_array.tm_mon + 1 > 12:
+            next_tm_mon = 1
+            next_tm_year = time_array.tm_year + 1
+        else:
+            next_tm_mon = time_array.tm_mon + 1
+            next_tm_year = time_array.tm_year
+        this_month_end = (datetime(next_tm_year, next_tm_mon,
+                                   1) - timedelta(days=1)).date()
+        this_month = [
+            this_month_first_day + timedelta(i) for i in
+            range(int((this_month_end - this_month_first_day).days) + 1)]
+        list_date = this_month
+        first_day = date.strftime(
+            this_month_first_day, '%Y-%m-%d')
+        last_day = date.strftime(this_month_end, '%Y-%m-%d')
 
         weekday = [i for i in list_date if i.isoweekday() < 6]  # 所有工作日
         weekend = [i for i in list_date if i.isoweekday() > 5]  # 所有周末
@@ -167,6 +176,17 @@ class TimesheetSelectCreate(models.Model):
         except Exception as e:
             raise ValidationError(_('日期格式有问题，如果按月，如2019-01，如果按日期则2019-01-01'))
 
+    def _change_date_format(self, data_str):
+        date_type = self._check_date_type(data_str)
+        strTime = data_str
+        if date_type == 'day':
+            timeStruct = time.strptime(data_str, "%Y-%m-%d")
+            strTime = time.strftime("%Y-%m-%d", timeStruct)
+        if date_type == 'month':
+            timeStruct = time.strptime(data_str, "%Y-%m")
+            strTime = time.strftime("%Y-%m", timeStruct)
+
+        return strTime
 
 
 

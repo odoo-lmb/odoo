@@ -4,7 +4,7 @@
 
         <!-- actions opening views on models -->
         <record model="ir.actions.act_window" id="timesheet_select_create_action_window">
-            <field name="name">选创工时</field>
+            <field name="name">自创工时</field>
             <field name="res_model">timesheet.select_create</field>
             <field name="view_mode">tree,form</field>
         </record>
@@ -20,7 +20,7 @@
                     <field name="project_id"/>
                     <field name="timesheet_type"/>
                     <field name="task_id"/>
-                    <field name="date"/>
+                    <field name="date" string="填充日期（如2019-01）"/>
                 </tree>
             </field>
         </record>
@@ -32,7 +32,7 @@
         </record>
 
 
-        <menuitem id="hr_timesheet_lock_menu" name="选创工时" parent="timesheet_menu_root"
+        <menuitem id="hr_timesheet_lock_menu" name="自创工时" parent="timesheet_menu_root"
                   groups="group_timesheet_manager" action="timesheet_select_create_action_window" sequence="99"/>
 
     </data>
