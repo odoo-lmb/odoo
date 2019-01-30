@@ -58,7 +58,6 @@
                     <field name="approver" readonly="1" />
                     <field name="is_approval" readonly="1" />
                     <field name="total_day_amount" invisible="1" />
-
                 </tree>
             </field>
         </record>
@@ -217,7 +216,10 @@
                     <field name="name" string="工作日报简述" />
                      <field name="approver" readonly="1" />
                     <field name="is_approval" readonly="1" />
-                       <field name="total_day_amount" invisible="1" interval="1"/>
+                       <field name="total_day_amount" invisible="1" />
+                     <field name="user_id" invisible="1" />
+
+
                 </tree>
             </field>
         </record>
