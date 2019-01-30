@@ -25,14 +25,14 @@
             </field>
         </record>
 
-        <record model="ir.actions.act_window.view" id="test_lock">
+        <record model="ir.actions.act_window.view" id="test_select_create">
             <field name="view_mode">tree</field>
             <field name="view_id" ref="timesheet_select_create_view_tree"/>
             <field name="act_window_id" ref="timesheet_select_create_action_window"/>
         </record>
 
 
-        <menuitem id="hr_timesheet_lock_menu" name="自创工时" parent="timesheet_menu_root"
+        <menuitem id="timesheet_select_create_menu" name="自创工时" parent="timesheet_menu_root"
                   groups="group_timesheet_manager" action="timesheet_select_create_action_window" sequence="99"/>
 
     </data>
