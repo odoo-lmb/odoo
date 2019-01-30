@@ -129,6 +129,12 @@ class AccountAnalyticLine(models.Model):
                 if self.employee_id.approver:
                     self.approver = self.employee_id.approver
 
+    @api.onchange('unit_amount')
+    def onchange_unit_amount(self):
+        # force domain on task when project is set
+        if self.unit_amount == 8:
+            self.total_day_amount = 8
+
     @api.constrains('unit_amount')
     def _check_unit_amount(self):
         temp_dict = {}
@@ -181,6 +187,11 @@ class AccountAnalyticLine(models.Model):
         for line in self:
            self.env['account.analytic.line'].search(
                 [('user_id', '=', line.user_id.id), ('date', '=', line.date),('is_fake_data','!=',False)]).unlink()
+           employee_info = self.env['hr.employee'].search(
+                [('user_id', '=',  line.user_id.id)], limit=1)
+           last_working_day = employee_info.last_working_day2 if employee_info.last_working_day2 else employee_info.last_working_day1
+           if last_working_day<line.date:
+                raise ValidationError(_('该员工在当日已离职.'))
 
 
     # @api.constrains('employee_id')
