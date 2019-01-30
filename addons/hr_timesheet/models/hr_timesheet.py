@@ -194,7 +194,7 @@ class AccountAnalyticLine(models.Model):
                if employee_info.last_working_day2 < line.date:
                     raise ValidationError(_('该员工在当日已离职.'))
            else:
-               if employee_info.last_working_day1:
+               if employee_info.last_working_day1 and not employee_info.first_working_day2:
                    if employee_info.last_working_day1 < line.date:
                        raise ValidationError(_('该员工在当日已离职.'))
 
