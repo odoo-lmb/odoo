@@ -14,13 +14,13 @@
             <field name="model">timesheet.select_create</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <tree editable="top" string="test" import="false">
+                <tree editable="top" string="test" import="false" default_order="date desc">
+                    <field name="date" string="填充日期（按月2019-01, 按日期2019-01-01）"/>
+                    <field name="timesheet_type"/>
+                    <field name="project_id"/>
+                    <field name="task_id"/>
                     <field name="department_id"/>
                     <field name="employee_id"/>
-                    <field name="project_id"/>
-                    <field name="timesheet_type"/>
-                    <field name="task_id"/>
-                    <field name="date" string="填充日期（如2019-01）"/>
                 </tree>
             </field>
         </record>
