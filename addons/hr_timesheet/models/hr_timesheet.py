@@ -189,14 +189,23 @@ class AccountAnalyticLine(models.Model):
                 [('user_id', '=', line.user_id.id), ('date', '=', line.date),('is_fake_data','!=',False)]).unlink()
            employee_info = self.env['hr.employee'].search(
                 [('user_id', '=',  line.user_id.id)], limit=1)
-           last_working_day = employee_info.last_working_day2 if employee_info.last_working_day2 else employee_info.last_working_day1
-           if last_working_day:
-               if last_working_day<line.date:
+
+           if employee_info.last_working_day2:
+               if employee_info.last_working_day2 < line.date:
                     raise ValidationError(_('该员工在当日已离职.'))
-           first_working_day = employee_info.first_working_day2 if employee_info.first_working_day2 else employee_info.first_working_day1
-           if first_working_day:
-               if first_working_day > line.date:
+           else:
+               if employee_info.last_working_day1:
+                   if employee_info.last_working_day1 < line.date:
+                       raise ValidationError(_('该员工在当日已离职.'))
+
+           if employee_info.first_working_day1:
+               if employee_info.first_working_day1 > line.date:
                    raise ValidationError(_('该员工在当日尚未入职.'))
+               else:
+                   if employee_info.first_working_day2 and employee_info.last_working_day1:
+                       if employee_info.first_working_day2 > line.date and employee_info.last_working_day1<line.date:
+                           raise ValidationError(_('该员工在当日尚未入职.'))
+
 
 
     # @api.constrains('employee_id')
