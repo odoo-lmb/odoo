@@ -53,3 +53,17 @@ class TimeSheetLock(models.Model):
         values['lock_date'] = strTime
         result = super(TimeSheetLock, self).create(values)
         return result
+
+    @api.multi
+    def write(self, values):
+        lock_date = values.get('lock_date')
+        if lock_date:
+            try:
+                timeStruct = time.strptime(lock_date, "%Y-%m")
+                strTime = time.strftime("%Y-%m", timeStruct)
+            except Exception as e:
+                _logger.error(e)
+                raise ValidationError(_(DATE_ERROR))
+            values['lock_date'] = strTime
+        result = super(TimeSheetLock, self).write(values)
+        return result
