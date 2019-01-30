@@ -103,7 +103,7 @@
                     <field name="name">et</field>
                     <field name="model">account.analytic.line</field>
                     <field name="arch" type="xml">
-                        <tree editable="top" string="Timesheet Activities" import="false" create="false" default_order="sanity_fail_reason" >
+                        <tree editable="top" string="Timesheet Activities" import="false" create="false" default_order="sanity_fail_reason" decoration-danger="total_day_amount&lt;8">
                              <field name="employee_id" readonly="1" />
                                 <field name="date" readonly="1" />
                                  <field name="unit_amount" widget="timesheet_uom" readonly="1"  />
@@ -113,6 +113,7 @@
                                  <field name="approver" readonly="1" />
                                 <field name="is_approval"  readonly="1"/>
                                 <field name="sanity_fail_reason"  string="错误原因" readonly="1"/>
+                                <field name="total_day_amount" invisible="1" />
                         </tree>
                     </field>
                 </record>
