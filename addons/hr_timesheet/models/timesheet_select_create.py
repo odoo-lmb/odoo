@@ -96,8 +96,12 @@ class TimesheetSelectCreate(models.Model):
             values['approver'] = employee.approver.id
             first_working_day = employee.first_working_day2 if employee.first_working_day2 else employee.first_working_day1
             last_working_day = employee.last_working_day2 if employee.last_working_day2 else employee.last_working_day1
-            first_working_day_timestap = self._get_date_timestamp(str(first_working_day))
-            last_working_day_timestap = self._get_date_timestamp(str(last_working_day))
+            first_working_day_timestap = 0
+            last_working_day_timestap = 0
+            if first_working_day:
+                first_working_day_timestap = self._get_date_timestamp(str(first_working_day))
+            if last_working_day:
+                last_working_day_timestap = self._get_date_timestamp(str(last_working_day))
 
             for work_day in all_work_day:
                 list_record = self.env['account.analytic.line'].search([('employee_id', '=', employee.id),
@@ -105,9 +109,9 @@ class TimesheetSelectCreate(models.Model):
                 insert_timestamp = self._get_date_timestamp(work_day)
 
 
-                if insert_timestamp < first_working_day_timestap:
+                if first_working_day_timestap and insert_timestamp < first_working_day_timestap:
                     continue
-                if insert_timestamp > last_working_day_timestap:
+                if last_working_day_timestap and insert_timestamp > last_working_day_timestap:
                     continue
 
                 values['date'] = work_day
