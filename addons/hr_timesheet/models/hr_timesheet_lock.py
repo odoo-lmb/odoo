@@ -13,6 +13,7 @@ from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
+DATE_ERROR = '请输入正确的时间格式如2019-01'
 
 class TimeSheetLock(models.Model):
     _name = 'timesheet.lock'
@@ -38,4 +39,17 @@ class TimeSheetLock(models.Model):
                 time_array = time.strptime(line.lock_date, "%Y-%m")
             except Exception as e:
                 _logger.error(e)
-                raise ValidationError(_('请输入正确的时间格式如2019-01'))
+                raise ValidationError(_(DATE_ERROR))
+
+    @api.model
+    def create(self, values):
+        lock_date = values.get('lock_date')
+        try:
+            timeStruct = time.strptime(lock_date, "%Y-%m")
+            strTime = time.strftime("%Y-%m", timeStruct)
+        except Exception as e:
+            _logger.error(e)
+            raise ValidationError(_(DATE_ERROR))
+        values['lock_date'] = strTime
+        result = super(TimeSheetLock, self).create(values)
+        return result
