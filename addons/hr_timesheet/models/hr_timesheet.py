@@ -190,8 +190,9 @@ class AccountAnalyticLine(models.Model):
            employee_info = self.env['hr.employee'].search(
                 [('user_id', '=',  line.user_id.id)], limit=1)
            last_working_day = employee_info.last_working_day2 if employee_info.last_working_day2 else employee_info.last_working_day1
-           if last_working_day<line.date:
-                raise ValidationError(_('该员工在当日已离职.'))
+           if last_working_day:
+               if last_working_day<line.date:
+                    raise ValidationError(_('该员工在当日已离职.'))
 
 
     # @api.constrains('employee_id')
