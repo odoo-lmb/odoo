@@ -193,6 +193,10 @@ class AccountAnalyticLine(models.Model):
            if last_working_day:
                if last_working_day<line.date:
                     raise ValidationError(_('该员工在当日已离职.'))
+           first_working_day = employee_info.first_working_day2 if employee_info.first_working_day2 else employee_info.first_working_day1
+           if first_working_day:
+               if first_working_day > line.date:
+                   raise ValidationError(_('该员工在当日尚未离职.'))
 
 
     # @api.constrains('employee_id')
