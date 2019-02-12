@@ -20,6 +20,9 @@ NOT_WORK = 2
 LOCK_OPTION = 1
 SPECIAL_DATE_ERROR = "这一天是非工作日，暂不需要填写工时"
 
+FIRST_WORK_ERROR = '该员工在当日已离职'
+LAST_WORK_ERROR = '该员工在当日尚未入职'
+
 ERROR_REASON_TIME_NOT_ENOUGH = 1
 ERROR_REASON_NOT_INTER =2
 ERROR_REASON_NOT_PASS=3
@@ -192,19 +195,19 @@ class AccountAnalyticLine(models.Model):
 
            if employee_info.last_working_day2:
                if employee_info.last_working_day2 < line.date:
-                    raise ValidationError(_('该员工在当日已离职.'))
+                    raise ValidationError(_(FIRST_WORK_ERROR))
            else:
                if employee_info.last_working_day1 and not employee_info.first_working_day2:
                    if employee_info.last_working_day1 < line.date:
-                       raise ValidationError(_('该员工在当日已离职.'))
+                       raise ValidationError(_(FIRST_WORK_ERROR))
 
            if employee_info.first_working_day1:
                if employee_info.first_working_day1 > line.date:
-                   raise ValidationError(_('该员工在当日尚未入职.'))
+                   raise ValidationError(_(LAST_WORK_ERROR))
                else:
                    if employee_info.first_working_day2 and employee_info.last_working_day1:
                        if employee_info.first_working_day2 > line.date and employee_info.last_working_day1<line.date:
-                           raise ValidationError(_('该员工在当日尚未入职.'))
+                           raise ValidationError(_(LAST_WORK_ERROR))
 
 
 
