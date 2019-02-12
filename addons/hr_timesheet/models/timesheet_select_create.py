@@ -7,12 +7,16 @@
 
 import time
 import calendar
+import logging
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
-from .hr_timesheet import TIMESHEET_TYPE, NEED_WORK, NOT_WORK
+from .hr_timesheet import TIMESHEET_TYPE, NEED_WORK, NOT_WORK, FIRST_WORK_ERROR, LAST_WORK_ERROR
 from datetime import timedelta, datetime
 
 STANDARD_WORK_HOURS = 8
+
+_logger = logging.getLogger(__name__)
+
 
 class TimesheetSelectCreate(models.Model):
     _name = 'timesheet.select_create'
@@ -94,26 +98,10 @@ class TimesheetSelectCreate(models.Model):
             values['employee_id'] = False
             values['user_id'] = employee.user_id.id
             values['approver'] = employee.approver.id
-            first_working_day = employee.first_working_day2 if employee.first_working_day2 else employee.first_working_day1
-            last_working_day = employee.last_working_day2 if employee.last_working_day2 else employee.last_working_day1
-            first_working_day_timestap = 0
-            last_working_day_timestap = 0
-            if first_working_day:
-                first_working_day_timestap = self._get_date_timestamp(str(first_working_day))
-            if last_working_day:
-                last_working_day_timestap = self._get_date_timestamp(str(last_working_day))
 
             for work_day in all_work_day:
                 list_record = self.env['account.analytic.line'].search([('employee_id', '=', employee.id),
                                                                         ('date', '=', work_day)])
-                insert_timestamp = self._get_date_timestamp(work_day)
-
-
-                if first_working_day_timestap and insert_timestamp < first_working_day_timestap:
-                    continue
-                if last_working_day_timestap and insert_timestamp > last_working_day_timestap:
-                    continue
-
                 values['date'] = work_day
                 total_unit_amount = 0
                 for record in list_record:
@@ -128,8 +116,16 @@ class TimesheetSelectCreate(models.Model):
                         values['unit_amount'] = unit_amount
                 else:
                     continue
+                try:
+                    result = self.env['account.analytic.line'].create(values)
+                except Exception as e:
+                    # 如果是因为入职和离职创建错误则忽略
+                    if e.name in [FIRST_WORK_ERROR, LAST_WORK_ERROR]:
+                        _logger.info("%s in error:%s, ignore" % (employee_id, e))
+                        continue
+                    else:
+                        raise ValidationError(_(e.name))
 
-                result = self.env['account.analytic.line'].create(values)
         values['employee_id'] = employee_id
         values['date'] = date
         return super(TimesheetSelectCreate, self).create(values)
