@@ -138,7 +138,7 @@ class AccountAnalyticLine(models.Model):
         if self.unit_amount == 8:
             self.total_day_amount = 8
 
-    @api.constrains('unit_amount')
+    @api.constrains('unit_amount', 'date')
     def _check_unit_amount(self):
         temp_dict = {}
 
@@ -227,6 +227,12 @@ class AccountAnalyticLine(models.Model):
         self._check_special_date(values)
         self._check_project_task(values)
         self._check_timesheet_lock(values)
+
+        # print(values)
+        # print(self.is_fake_data)
+        # 如果不是假数据，并且填写的工时为0，则自动设为8小时
+        if not self.is_fake_data and values['unit_amount'] == 0:
+            values['unit_amount'] = 8
 
         # compute employee only for timesheet lines, makes no sense for other
         # lines
