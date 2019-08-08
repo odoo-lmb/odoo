@@ -42,6 +42,8 @@ class AccountAnalyticLine(models.Model):
                 'default_employee_id') and 'employee_id' in field_list and result.get('user_id'):
             result['employee_id'] = self.env['hr.employee'].search(
                 [('user_id', '=', result['user_id'])], limit=1).id
+        # 默认工时为8小时
+        result['unit_amount'] = 8
         return result
 
     task_id = fields.Many2one('project.task', 'Task', index=True)
@@ -231,8 +233,8 @@ class AccountAnalyticLine(models.Model):
         # print(values)
         # print(self.is_fake_data)
         # 如果不是假数据，并且填写的工时为0，则自动设为8小时
-        if not self.is_fake_data and values['unit_amount'] == 0:
-            values['unit_amount'] = 8
+        # if not self.is_fake_data and values['unit_amount'] == 0:
+        #     values['unit_amount'] = 8
 
         # compute employee only for timesheet lines, makes no sense for other
         # lines
